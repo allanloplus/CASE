@@ -49,7 +49,7 @@ window.CASE_REGISTRY = [
     id: 'S111005',
     status: 'ready',
     category: '資訊保護',
-    title: '起飛之前：晟馳科技的營業秘密保衛戰',
+    title: '起飛之前：艾倫普拉斯科技的營業秘密保衛戰',
     origin: '揮一揮衣袖 離職時請別帶走公司的營業秘密',
     tags: ['營業秘密', '內部威脅', '合理保密措施', '離職管理', '日誌監控'],
     minutes: 90
