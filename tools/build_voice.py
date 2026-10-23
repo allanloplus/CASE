@@ -55,6 +55,8 @@ SPOKEN = [
     (r'\bCIA\b', 'C I A'),
     (r'\bMFA\b', 'M F A'),
     (r'\bSaaS\b', '沙斯'),
+    (r'\bIP\b', 'I P'),
+    (r'backup-sync', 'backup sync'),
     (r'3-2-1-1-0', '三二一一零'),
     (r'\bARC\b', 'A R C'),
     (r'\bLINE\b', 'Line'),
