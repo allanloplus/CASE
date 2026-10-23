@@ -14,6 +14,12 @@
   App.MISSIONS = MISSIONS;
   const DIMS = ['mgmt', 'tech', 'law', 'resp'];
 
+  /* 個案可在 data.missions 覆寫任務標題與說明 */
+  App.missionsFor = function (data) {
+    const over = (data && data.missions) || {};
+    return MISSIONS.map((m) => Object.assign({}, m, over[m.key]));
+  };
+
   function revealedSet(id) {
     return App.store.get('qrevealed:' + id, {});
   }
@@ -29,7 +35,7 @@
     const revealed = revealedSet(id);
     const qCount = data.questions.filter((q) => q.dim !== 'final' && revealed[q.id]).length;
     const qTotal = data.questions.filter((q) => q.dim !== 'final').length;
-    return MISSIONS.map((m) => {
+    return App.missionsFor(data).map((m) => {
       if (m.key === 'questions') return { ...m, done: questionsDone(id), note: qCount + ' / ' + qTotal + ' 題', started: qCount > 0 };
       if (m.key === 'final') return { ...m, done: !!revealed['final-1'] };
       return { ...m, done: p[m.key] != null, score: p[m.key] };
@@ -52,7 +58,7 @@
       h(
         'div',
         { class: 'hub-talk' },
-        App.talk('allan', 'smile', doneCount === 0 ? '歡迎來到討論區！先當偵探找徵兆，再一路推進到董事會決議。每一題都沒有唯一解，重點是你的推理過程。' : doneCount === MISSIONS.length ? '六個任務全部完成，表現得很好！可以到「董事會決議」複製你的研討筆記。' : '已經完成 ' + doneCount + ' 個任務，繼續加油！'),
+        App.talk('allan', 'smile', doneCount === 0 ? App.uiText(data, 'hubIntro', '歡迎來到討論區！先當偵探找徵兆，再一路推進到董事會決議。每一題都沒有唯一解，重點是你的推理過程。') : doneCount === MISSIONS.length ? '六個任務全部完成，表現得很好！可以到「董事會決議」複製你的研討筆記。' : '已經完成 ' + doneCount + ' 個任務，繼續加油！'),
         App.talk('arale', doneCount === MISSIONS.length ? 'thumb' : 'cheer', doneCount === MISSIONS.length ? '全部亮燈！阿拉蕾幫你頒發研討完成章！' : '每完成一關就會亮起星星，阿拉蕾會在旁邊給提示喔！', { flip: true })
       ),
       h(
@@ -85,10 +91,11 @@
   /* ---------- 任務頁外框 ---------- */
   App.MissionPage = function (root, data, key) {
     const id = data.meta.id;
-    const i = MISSIONS.findIndex((m) => m.key === key);
-    const m = MISSIONS[i];
+    const missions = App.missionsFor(data);
+    const i = missions.findIndex((m) => m.key === key);
+    const m = missions[i];
     const body = h('div', { class: 'mission-body' });
-    const nextM = MISSIONS[i + 1];
+    const nextM = missions[i + 1];
     root.append(
       h(
         'section',
@@ -217,12 +224,15 @@
     let current = App.store.get('qtab:' + id, 'mgmt');
     const tabs = h('div', { class: 'tabs', role: 'tablist', 'aria-label': '討論面向' });
     const panel = h('div', { class: 'tab-panel', role: 'tabpanel' });
-    const intro = {
-      mgmt: ['allan', 'think', '管理面看的是「制度與權責」：誰該負責、流程有沒有缺口、治理層級夠不夠。'],
-      tech: ['arale', 'explain', '技術面要想清楚：每一個攻擊步驟，有哪道防線可以擋下或發現它？'],
-      law: ['allan', 'point', '法律面有兩個角度：駭客的刑事責任，以及企業自己作為個資保管者的責任。'],
-      resp: ['arale', 'think', '企業因應最考驗判斷力：付不付錢、說不說、怎麼說？']
-    };
+    const intro = Object.assign(
+      {
+        mgmt: ['allan', 'think', '管理面看的是「制度與權責」：誰該負責、流程有沒有缺口、治理層級夠不夠。'],
+        tech: ['arale', 'explain', '技術面要想清楚：每一個攻擊步驟，有哪道防線可以擋下或發現它？'],
+        law: ['allan', 'point', '法律面有兩個角度：駭客的刑事責任，以及企業自己作為個資保管者的責任。'],
+        resp: ['arale', 'think', '企業因應最考驗判斷力：付不付錢、說不說、怎麼說？']
+      },
+      App.uiText(data, 'dimIntro', {})
+    );
     function paint() {
       tabs.replaceChildren(
         ...DIMS.map((d) =>
@@ -265,7 +275,7 @@
     const allDone = states.every((m) => m.done);
 
     root.append(
-      h('p', { class: 'game-intro' }, '最後一關：把前面的討論收斂成董事會上的三項決議，並回顧本個案的管理意涵。'),
+      h('p', { class: 'game-intro' }, App.uiText(data, 'finalLead', '最後一關：把前面的討論收斂成董事會上的三項決議，並回顧本個案的管理意涵。')),
       questionCard(data, finalQ, '綜合'),
       h(
         'section',

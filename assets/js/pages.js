@@ -104,14 +104,14 @@
         'section',
         { class: 'modes' },
         mode('read', '動畫閱讀', '場景、旁白與角色對話，一步步讀完案情。', App.charImg('arale', 'tablet'), p.read ? '已讀完' : null, true),
-        mode('discuss', '討論互動', '六個任務：偵探、拼圖、連連看、討論題、決策模擬、董事會決議。', App.charImg('arale', 'present'), doneCount ? '已完成 ' + doneCount + ' / 6' : null, true),
+        mode('discuss', '討論互動', App.uiText(data, 'discussDesc', '六個任務：偵探、拼圖、連連看、討論題、決策模擬、董事會決議。'), App.charImg('arale', 'present'), doneCount ? '已完成 ' + doneCount + ' / 6' : null, true),
         mode('text', '文本版', '完整的個案本文與附件，適合列印或課前閱讀。', App.charImg('allan', 'stand')),
         mode('teach', '教學手冊', '教學目標、課堂流程、參考答案與遊戲解答。', App.charImg('allan', 'think'))
       ),
       h(
         'section',
         { class: 'overview-talk' },
-        App.talk('allan', 'smile', '這個個案停在董事會前夜：系統三天就救回來了，暗網上的倒數卻才剛開始。你會怎麼建議總經理？'),
+        App.talk('allan', 'smile', App.uiText(data, 'overviewTalk', '這個個案停在董事會前夜：系統三天就救回來了，暗網上的倒數卻才剛開始。你會怎麼建議總經理？')),
         App.talk('arale', 'cheer', '建議先看「動畫閱讀」，再到「討論互動」闖關！', { flip: true })
       ),
       h(
@@ -215,7 +215,7 @@
       h('p', { class: 'muted' }, '適用對象：' + m.audience),
       h('h2', null, '課前準備'),
       h('ul', null, t.prep.map((x) => h('li', null, x))),
-      h('h2', null, '課堂進行建議（90 分鐘）'),
+      h('h2', null, '課堂進行建議（' + m.minutes + ' 分鐘）'),
       h(
         'div',
         { class: 'scroll-x' },
@@ -252,10 +252,10 @@
       h(
         'div',
         { class: 'scroll-x' },
-        h('table', { class: 'data-table' }, h('thead', null, h('tr', null, h('th', null, '時間'), h('th', null, '紀錄'), h('th', null, '判斷'), h('th', null, '說明'))), h('tbody', null, g.signs.items.map((it) => h('tr', { class: it.sign ? 'row-sign' : '' }, h('td', { class: 'mono nowrap' }, it.t), h('td', null, it.msg), h('td', { class: 'nowrap' }, it.sign ? '攻擊徵兆' : '正常'), h('td', null, it.why)))))
+        h('table', { class: 'data-table' }, h('thead', null, h('tr', null, h('th', null, '時間'), h('th', null, '紀錄'), h('th', null, '判斷'), h('th', null, '說明'))), h('tbody', null, g.signs.items.map((it) => h('tr', { class: it.sign ? 'row-sign' : '' }, h('td', { class: 'mono nowrap' }, it.t), h('td', null, it.msg), h('td', { class: 'nowrap' }, it.sign ? g.signs.signNoun || '攻擊徵兆' : '正常'), h('td', null, it.why)))))
       ),
       h('h3', null, g.killchain.title),
-      h('ol', { class: 'chain-key' }, g.killchain.steps.map((st) => h('li', null, h('strong', null, st.stage + '：'), st.act, h('span', { class: 'muted' }, '（ATT&CK ' + st.attack + '；防線：' + st.defend + '）')))),
+      h('ol', { class: 'chain-key' }, g.killchain.steps.map((st) => h('li', null, h('strong', null, st.stage + '：'), st.act, h('span', { class: 'muted' }, '（' + (g.killchain.attackLabel != null ? g.killchain.attackLabel : 'ATT&CK ') + st.attack + '；防線：' + st.defend + '）')))),
       h('h3', null, g.law.title),
       h('ul', null, g.law.pairs.map((pr) => {
         const law = g.law.laws.find((x) => x.id === pr.law);

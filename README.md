@@ -9,7 +9,8 @@
 | 案號 | 個案 | 狀態 |
 |---|---|---|
 | S111001 | 倒數十天：築遠建設的勒索軟體風暴 | 已完成 |
-| S111002～S111005 | 國家資通安全研究院精選案例 | 改編中 |
+| S111002～S111004 | 國家資通安全研究院精選案例 | 改編中 |
+| S111005 | 起飛之前：晟馳科技的營業秘密保衛戰 | 已完成 |
 
 ## 每個個案的四種模式
 
@@ -52,6 +53,7 @@ assets/src/             角色設定原圖
 tools/make_sprites.py   由設定原圖切出角色貼圖
 cases/registry.js       個案清單
 cases/S111001/case.js   個案內容（本文、對話、附件、題目、答案、遊戲、教學手冊）
+cases/S111005/case.js   個案內容（營業秘密與內部威脅）
 ```
 
 ## 新增一個個案
@@ -61,6 +63,8 @@ cases/S111001/case.js   個案內容（本文、對話、附件、題目、答�
    - Allan 表情：`smile` `laugh` `think` `trouble` `surprise` `point` `wink` `shock`
    - 阿拉蕾表情：`laugh` `think` `surprise` `confused` `explain` `cry` `thumb` `cheer`
    - 場景背景 `bg`：`night` `office` `server` `alert` `meeting` `darkweb` `city`
+   - 附件類型 `type`：`org` `logs` `ransom` `network` `notice` `leak` `table` `timeline` `profile` `flow` `cctv` `clauses`
+   - 選填 `missions`、`ui` 與各遊戲的 `talkIntro`、`signNoun`、`attackLabel`、`outro`、`profiles`、`endKicker`，可覆寫任務名稱與引導文字（範例見 `cases/S111005/case.js`）
 2. 在 `cases/registry.js` 把該案的 `status` 改為 `'ready'`，並補上 `title`、`minutes`。
 
 ## 更新角色圖

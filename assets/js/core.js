@@ -145,6 +145,11 @@
     }
     return loading[id];
   };
+  /* 個案可在 data.ui 覆寫各頁的引導文字；未提供時沿用預設 */
+  App.uiText = function (data, key, fallback) {
+    const ui = (data && data.ui) || {};
+    return ui[key] != null ? ui[key] : fallback;
+  };
   App.registryEntry = function (id) {
     return (window.CASE_REGISTRY || []).find((c) => c.id === id);
   };
