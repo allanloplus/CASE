@@ -40,6 +40,8 @@ SPOKEN = [
     (r'TWCERT/CC', 'TW CERT CC'),
     (r'PHP2Shell', 'PHP to Shell'),
     (r'\bPDCA\b', 'P D C A'),
+    (r'\bTISAX\b', 'TI SAX'),
+    (r'\bDLP\b', 'D L P'),
     (r'\bCMDB\b', 'C M D B'),
     (r'\bISMS\b', 'I S M S'),
     (r'\bPIMS\b', 'P I M S'),
