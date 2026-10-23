@@ -20,10 +20,12 @@ window.CASE_REGISTRY = [
   },
   {
     id: 'S111002',
-    status: 'planned',
+    status: 'ready',
     category: '資訊保護',
+    title: '補丁之後：宇鋒科技的 Log4j 供應鏈風暴',
     origin: 'Log4j重大資安漏洞揭露半年後 仍不可大意',
-    tags: ['零時差漏洞', '軟體供應鏈', '修補管理']
+    tags: ['零時差漏洞', 'Log4Shell', '軟體供應鏈', '修補管理', 'SBOM', '委外管理'],
+    minutes: 90
   },
   {
     id: 'S111003',
