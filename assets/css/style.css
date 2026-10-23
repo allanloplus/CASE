@@ -1049,6 +1049,10 @@ button {
 .actor.pop .char-img {
   animation: pop 0.35s ease;
 }
+/* 語音播放中：輕微的說話律動 */
+.actor.voicing .char-img {
+  animation: talk 0.36s ease-in-out infinite alternate;
+}
 .bubble {
   position: relative;
   text-align: left;
@@ -1117,6 +1121,9 @@ button {
   grid-template-columns: auto minmax(0, 1fr) auto auto;
   gap: 10px;
   align-items: center;
+}
+.reader-controls.has-voice {
+  grid-template-columns: auto minmax(0, 1fr) auto auto auto;
 }
 .reader-meter {
   display: grid;
@@ -2453,6 +2460,14 @@ button {
     transform: translateX(4px);
   }
 }
+@keyframes talk {
+  from {
+    transform: translateY(0) scale(1);
+  }
+  to {
+    transform: translateY(-3px) scale(1.012, 0.99);
+  }
+}
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -2543,6 +2558,14 @@ button {
   .reader-controls {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.25fr);
     gap: 8px;
+  }
+  .reader-controls.has-voice {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(0, 1.25fr);
+  }
+  .reader-controls.has-voice .btn {
+    padding-inline: 4px;
+    font-size: 0.9rem;
+    white-space: nowrap;
   }
   .reader-controls .btn {
     padding-inline: 8px;

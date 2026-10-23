@@ -46,6 +46,15 @@
     let autoTimer = null;
     let renderedScene = -1;
     let finished = false;
+    let lastLine = null;
+
+    /* 角色語音：每句台詞一個音檔，播完才進入自動播放的下一步 */
+    let voiceOn = App.store.get('voice', true);
+    let voiceMap = {};
+    let voiceBusy = false;
+    let afterVoice = null;
+    const audio = new Audio();
+    audio.preload = 'auto';
 
     /* ---- DOM ---- */
     const kicker = h('p', { class: 'kicker' });
@@ -70,10 +79,11 @@
 
     const btnPrev = h('button', { type: 'button', class: 'btn btn-ghost', onclick: () => prev() }, '上一步');
     const btnAuto = h('button', { type: 'button', class: 'btn btn-ghost', 'aria-pressed': 'false', onclick: () => toggleAuto() }, '自動播放');
+    const btnVoice = h('button', { type: 'button', class: 'btn btn-ghost', 'aria-pressed': String(voiceOn), hidden: true, onclick: () => toggleVoice() }, voiceOn ? '語音開' : '語音關');
     const btnNext = h('button', { type: 'button', class: 'btn btn-primary', onclick: () => next() }, '下一步');
     const counter = h('span', { class: 'counter mono' });
     const bar = h('span', { class: 'progress-bar' }, h('i'));
-    const controls = h('div', { class: 'reader-controls' }, btnPrev, h('div', { class: 'reader-meter' }, bar, counter), btnAuto, btnNext);
+    const controls = h('div', { class: 'reader-controls' }, btnPrev, h('div', { class: 'reader-meter' }, bar, counter), btnVoice, btnAuto, btnNext);
 
     const head = h('div', { class: 'reader-head' }, h('div', null, kicker, title), dots);
     root.append(h('section', { class: 'reader' }, head, stage, controls, h('p', { class: 'reader-tip muted' }, '提示：點對話框或按「下一步」前進；鍵盤可用 ← → 鍵。')));
@@ -141,6 +151,8 @@
       bubble.classList.toggle('from-allan', who === 'allan');
       bubble.classList.toggle('from-arale', who === 'arale');
       bubbleName.textContent = App.cast[who].name;
+      lastLine = [who, text];
+      speak(who, text);
       type(text);
 
       const n = stepIndex();
@@ -188,13 +200,16 @@
 
     function scheduleAuto(text) {
       clearTimeout(autoTimer);
+      afterVoice = null;
       if (!auto) return;
       let wait = 1400 + Array.from(text).length * 70;
       if (l === 0) {
         const chars = flat[s].sc.narration.reduce((a, p) => a + (typeof p === 'string' ? p.length : p.list.join('').length), 0);
         wait += chars * 45;
       }
-      autoTimer = setTimeout(() => next(), wait);
+      const begun = Date.now();
+      if (voiceBusy) afterVoice = () => (autoTimer = setTimeout(() => next(), Math.max(700, wait - (Date.now() - begun))));
+      else autoTimer = setTimeout(() => next(), wait);
     }
 
     function toggleAuto() {
@@ -202,7 +217,59 @@
       btnAuto.setAttribute('aria-pressed', String(auto));
       btnAuto.textContent = auto ? '暫停播放' : '自動播放';
       if (auto && !typing) scheduleAuto(flat[s].sc.lines[l][2]);
-      if (!auto) clearTimeout(autoTimer);
+      if (!auto) {
+        clearTimeout(autoTimer);
+        afterVoice = null;
+      }
+    }
+
+    function setVoicing(who) {
+      actorAllan.classList.toggle('voicing', who === 'allan');
+      actorArale.classList.toggle('voicing', who === 'arale');
+    }
+    function voiceDone() {
+      voiceBusy = false;
+      setVoicing(null);
+      const fn = afterVoice;
+      afterVoice = null;
+      if (fn) fn();
+    }
+    function stopVoice() {
+      voiceBusy = false;
+      afterVoice = null;
+      setVoicing(null);
+      audio.pause();
+    }
+    function speak(who, text) {
+      stopVoice();
+      const file = voiceOn && voiceMap[who + '|' + text];
+      if (!file) return;
+      const src = 'cases/' + id + '/voice/' + file;
+      voiceBusy = true;
+      setVoicing(who);
+      audio.src = src;
+      const p = audio.play();
+      /* 瀏覽器擋下自動播放時，當作這句已播完 */
+      if (p && p.catch) p.catch(() => {
+        if (voiceBusy && audio.getAttribute('src') === src) voiceDone();
+      });
+    }
+    audio.addEventListener('ended', voiceDone);
+    audio.addEventListener('error', () => voiceBusy && voiceDone());
+
+    function toggleVoice() {
+      voiceOn = !voiceOn;
+      App.store.set('voice', voiceOn);
+      btnVoice.setAttribute('aria-pressed', String(voiceOn));
+      btnVoice.textContent = voiceOn ? '語音開' : '語音關';
+      if (!voiceOn) {
+        const fn = afterVoice;
+        stopVoice();
+        if (fn) fn();
+      } else if (lastLine) {
+        speak(lastLine[0], lastLine[1]);
+        if (auto && !typing && !finished) scheduleAuto(lastLine[1]);
+      }
     }
 
     function next() {
@@ -290,7 +357,9 @@
       bubble.classList.remove('from-allan');
       bubble.classList.add('from-arale');
       bubbleName.textContent = '阿拉蕾';
-      bubbleText.textContent = '辛苦了！討論區見，阿拉蕾幫你準備好遊戲了！';
+      lastLine = ['arale', '辛苦了！討論區見，阿拉蕾幫你準備好遊戲了！'];
+      bubbleText.textContent = lastLine[1];
+      speak(lastLine[0], lastLine[1]);
       counter.textContent = totalSteps + ' / ' + totalSteps;
       bar.firstChild.style.width = '100%';
       btnNext.textContent = '前往討論區';
@@ -313,9 +382,19 @@
       document.removeEventListener('keydown', onKey);
       stopTyping();
       clearTimeout(autoTimer);
+      stopVoice();
+      audio.removeAttribute('src');
     });
 
     App.preloadFaces();
     showLine();
+    App.loadVoice(id).then((map) => {
+      if (!stage.isConnected) return;
+      voiceMap = map;
+      const has = Object.keys(map).length > 0;
+      btnVoice.hidden = !has;
+      controls.classList.toggle('has-voice', has);
+      if (has && lastLine && !voiceBusy) speak(lastLine[0], lastLine[1]);
+    });
   };
 })();
