@@ -44,6 +44,7 @@ index.html              網站入口
 assets/css/style.css    樣式（含深色模式）
 assets/js/
   core.js               共用工具、角色、儲存、路由
+  voice.js              語音播放
   exhibits.js           附件繪製（組織圖、日誌、攻擊路徑、重大訊息、暗網示意…）
   reader.js             動畫閱讀
   games.js              互動遊戲
@@ -54,11 +55,12 @@ assets/img/allan/       Allan 顧問表情與姿勢
 assets/img/arale/       阿拉蕾表情與姿勢
 assets/src/             角色設定原圖
 tools/make_sprites.py   由設定原圖切出角色貼圖
-tools/build_voice.py    產生角色台詞語音 → cases/<案號>/voice/
+tools/build_voice.py    產生 Allan 與阿拉蕾的台詞語音 → cases/<案號>/voice/
 cases/registry.js       個案清單
 cases/S111001/case.js   個案內容（本文、對話、附件、題目、答案、遊戲、教學手冊）
 cases/S111005/case.js   營業秘密與內部威脅個案
 cases/S115001/case.js   PHP2Shell 情資應變個案
+cases/<案號>/voice/      台詞語音檔與對照表（自動產生）
 ```
 
 ## 新增一個個案
@@ -69,18 +71,27 @@ cases/S115001/case.js   PHP2Shell 情資應變個案
    - 阿拉蕾表情：`laugh` `think` `surprise` `confused` `explain` `cry` `thumb` `cheer`
    - 場景背景 `bg`：`night` `office` `server` `alert` `meeting` `darkweb` `city`
    - 附件類型 `type`：`org` `logs` `ransom` `network` `notice` `leak` `table` `timeline` `chat` `profile` `flow` `cctv` `clauses`
-2. 在 `cases/registry.js` 把該案的 `status` 改為 `'ready'`，並補上 `title`、`minutes`。
-3. 遊戲與討論區的文字預設沿用 S111001 的情境；題材不同時可覆寫（範例見 `cases/S115001/case.js`）：
+2. 執行 `python3 tools/build_voice.py <案號>` 產生角色語音（見下方「角色語音」）。
+3. 在 `cases/registry.js` 把該案的 `status` 改為 `'ready'`，並補上 `title`、`minutes`。
+4. 遊戲與討論區的文字預設沿用 S111001 的情境；題材不同時可覆寫（範例見 `cases/S115001/case.js`）：
    - `games.<遊戲>.labels`：按鈕、判斷結果、提示與結語，例如徵兆偵探改成「值得行動／不宜照做」
    - `ui.missions`：六個任務的名稱與說明
    - `ui.overview`、`ui.hub.welcome`、`ui.dimIntro`、`ui.finalIntro`、`ui.readerFinale`、`ui.discussDesc`：總覽、討論區與閱讀完成頁的對話與說明
    - 附件類型另有 `chat`（通訊軟體對話）；`notice` 可用 `label` 改標題列文字，`org` 可用 `link` 改兩個單位之間的關係說明
    - `profile`（單一公司概況）、`flow`（資料與設備流向）、`cctv`（監視器畫面示意）、`clauses`（契約條文摘錄，可標示有利／弱點條文），範例見 `cases/S111005/case.js`
-4. 案號格式為 `S` 加 6 位數字（路由只接受這個格式）。
+5. 案號格式為 `S` 加 6 位數字（路由只接受這個格式）。
 
 ## 角色語音
 
-沿用 ISO 27001 系列課程的聲音（edge-tts）：Allan 為 `zh-TW-YunJheNeural`（語速 +6%），阿拉蕾為 `zh-TW-HsiaoYuNeural`（語速 +12%、音調 +28Hz）。新增或修改台詞後執行：
+每個個案都要配語音。沿用 ISO 27001 系列課程的聲音（edge-tts），不可更換：Allan 為 `zh-TW-YunJheNeural`（語速 +6%），阿拉蕾為 `zh-TW-HsiaoYuNeural`（語速 +12%、音調 +28Hz）。
+
+配音範圍：動畫閱讀的所有對話、討論題的阿拉蕾提示、72 小時決策模擬的情境與 Allan 講評、法條連連看的 Allan 解說。
+
+- 動畫閱讀：每句對話自動播放，字幕速度與語音同步，說話的角色會跟著律動；開啟自動播放時，說完才換下一句；泡泡上的喇叭按鈕可重播。
+- 討論區：決策模擬、法條解說出現時自動說話；打開討論題提示時阿拉蕾會唸出來；有語音的泡泡都有喇叭按鈕。
+- 「語音 開／關」按鈕在動畫閱讀與各任務頁，設定會記住。瀏覽器擋下自動播放時，喇叭按鈕會閃爍，點一下或按「下一步」即可開始。
+
+新增或修改台詞後執行：
 
 ```bash
 pip install edge-tts
@@ -88,7 +99,7 @@ python3 tools/build_voice.py            # 所有已完成的個案
 python3 tools/build_voice.py S115001    # 只做指定個案
 ```
 
-只有改過的台詞會重新合成，不再使用的音檔會自動刪除。英文縮寫的唸法（例如 WAF 唸成 W A F）在 `build_voice.py` 的 `SPOKEN` 調整。沒有產生語音的個案，閱讀時不會出現語音按鈕。
+只有改過的台詞會重新合成，不再使用的音檔會自動刪除。網站依「角色＋台詞文字」對應語音，台詞改了而沒重新產生時，該句會安靜不播，不會播錯。英文縮寫的唸法（例如 WAF 唸成 W A F）在 `build_voice.py` 的 `SPOKEN` 調整。沒有產生語音的個案，不會出現語音按鈕。
 
 ## 更新角色圖
 

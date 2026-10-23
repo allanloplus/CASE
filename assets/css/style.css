@@ -503,7 +503,9 @@ button {
   transform: rotate(-135deg);
 }
 .talk-name {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-size: 0.78rem;
   font-weight: 700;
   letter-spacing: 0.06em;
@@ -1049,10 +1051,6 @@ button {
 .actor.pop .char-img {
   animation: pop 0.35s ease;
 }
-/* 語音播放中：輕微的說話律動 */
-.actor.voicing .char-img {
-  animation: talk 0.36s ease-in-out infinite alternate;
-}
 .bubble {
   position: relative;
   text-align: left;
@@ -1085,6 +1083,12 @@ button {
 .bubble.from-arale::before {
   right: -11px;
   transform: rotate(-135deg);
+}
+.bubble-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 26px;
 }
 .bubble-name {
   font-size: 0.8rem;
@@ -1124,6 +1128,61 @@ button {
 }
 .reader-controls.has-voice {
   grid-template-columns: auto minmax(0, 1fr) auto auto auto;
+}
+/* 語音 */
+.voice-toggle svg {
+  width: 18px;
+  height: 18px;
+}
+.voice-toggle.is-off {
+  color: var(--ink-2);
+}
+.voice-toggle.is-off .wave {
+  opacity: 0.2;
+}
+.voice-replay {
+  display: inline-grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border-radius: 50%;
+  border: 1.5px solid var(--rule);
+  background: var(--sheet-2);
+  color: var(--teal);
+  cursor: pointer;
+  flex: none;
+}
+.voice-replay svg {
+  width: 16px;
+  height: 16px;
+}
+.voice-replay:hover {
+  background: var(--teal-soft);
+}
+.voice-replay.nudge {
+  background: var(--sun);
+  color: var(--on-sun);
+  animation: pulse 1.2s ease-in-out infinite;
+}
+.bubble.voicing .voice-replay .wave,
+.talk.talking .voice-replay .wave {
+  animation: wave 0.9s ease-in-out infinite;
+}
+.bubble.voicing .voice-replay .w2,
+.talk.talking .voice-replay .w2 {
+  animation-delay: 0.2s;
+}
+.actor.talking .char-img,
+.actor-arale.speaking.talking .char-img,
+.talk.talking .talk-face .char-img {
+  animation: talk 0.34s ease-in-out infinite alternate;
+}
+.mission-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
 }
 .reader-meter {
   display: grid;
@@ -2668,6 +2727,23 @@ button {
     opacity: 0;
   }
 }
+@keyframes talk {
+  from {
+    transform: translateY(0) scale(1);
+  }
+  to {
+    transform: translateY(-3px) scale(1.015, 1.03);
+  }
+}
+@keyframes wave {
+  0%,
+  100% {
+    opacity: 0.25;
+  }
+  50% {
+    opacity: 1;
+  }
+}
 @keyframes nudge {
   0%,
   100% {
@@ -2675,14 +2751,6 @@ button {
   }
   50% {
     transform: translateX(4px);
-  }
-}
-@keyframes talk {
-  from {
-    transform: translateY(0) scale(1);
-  }
-  to {
-    transform: translateY(-3px) scale(1.012, 0.99);
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -2776,16 +2844,23 @@ button {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.25fr);
     gap: 8px;
   }
-  .reader-controls.has-voice {
-    grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(0, 1.25fr);
-  }
-  .reader-controls.has-voice .btn {
-    padding-inline: 4px;
-    font-size: 0.9rem;
-    white-space: nowrap;
-  }
   .reader-controls .btn {
     padding-inline: 8px;
+  }
+  .reader-controls.has-voice {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+  .reader-controls.has-voice .ctl-prev {
+    order: 1;
+  }
+  .reader-controls.has-voice .ctl-next {
+    order: 2;
+  }
+  .reader-controls.has-voice .ctl-voice {
+    order: 3;
+  }
+  .reader-controls.has-voice .ctl-auto {
+    order: 4;
   }
   .reader-meter {
     grid-column: 1 / -1;

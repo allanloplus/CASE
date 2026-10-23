@@ -115,53 +115,65 @@
   };
 
   /* 角色說話列：頭像＋對話泡泡 */
+  /* opts.autoplay：泡泡出現時自動播放語音（需有對應語音檔且語音開啟） */
   App.talk = function (who, face, text, opts) {
     opts = opts || {};
     const c = App.cast[who];
-    return h(
+    const url = App.Voice ? App.Voice.url(who, text) : null;
+    const el = h(
       'div',
       { class: 'talk talk-' + who + (opts.flip ? ' talk-flip' : '') + (opts.cls ? ' ' + opts.cls : '') },
       h('div', { class: 'talk-face' }, App.charImg(who, face)),
-      h('div', { class: 'talk-bubble' }, h('span', { class: 'talk-name' }, c.name), h('p', { html: App.fmt(text) }))
+      h(
+        'div',
+        { class: 'talk-bubble' },
+        h('span', { class: 'talk-name' }, c.name, url ? App.Voice.replayButton(() => App.Voice.sayTalk(el)) : null),
+        h('p', { html: App.fmt(text) })
+      )
     );
+    el.voiceUrl = url;
+    if (url && opts.autoplay && App.Voice.on()) {
+      requestAnimationFrame(() => {
+        if (el.isConnected) App.Voice.sayTalk(el);
+      });
+    }
+    return el;
   };
 
   /* ---------- 個案載入（依需要動態載入 cases/<id>/case.js） ---------- */
   window.CASE_LIBRARY = window.CASE_LIBRARY || {};
+  window.CASE_VOICE = window.CASE_VOICE || {};
   const loading = {};
+  function loadScript(src) {
+    return new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = src;
+      s.onload = resolve;
+      s.onerror = () => {
+        s.remove();
+        reject(new Error('load failed: ' + src));
+      };
+      document.head.appendChild(s);
+    });
+  }
+  /* 載入個案內容，再載入語音對照表（沒有語音檔的個案照常運作） */
   App.loadCase = function (id) {
-    if (window.CASE_LIBRARY[id]) return Promise.resolve(window.CASE_LIBRARY[id]);
     if (!loading[id]) {
-      loading[id] = new Promise((resolve, reject) => {
-        const s = document.createElement('script');
-        s.src = 'cases/' + id + '/case.js';
-        s.onload = () => (window.CASE_LIBRARY[id] ? resolve(window.CASE_LIBRARY[id]) : reject(new Error('missing')));
-        s.onerror = () => {
+      const base = 'cases/' + id + '/';
+      const content = window.CASE_LIBRARY[id] ? Promise.resolve() : loadScript(base + 'case.js');
+      loading[id] = content
+        .then(() => {
+          if (!window.CASE_LIBRARY[id]) throw new Error('missing');
+          return window.CASE_VOICE[id] ? null : loadScript(base + 'voice/voice.js').catch(() => null);
+        })
+        .then(() => window.CASE_LIBRARY[id])
+        .catch((e) => {
           delete loading[id];
-          reject(new Error('load failed'));
-        };
-        document.head.appendChild(s);
-      });
+          throw e;
+        });
     }
     return loading[id];
   };
-  /* 角色語音清單（cases/<id>/voice/voice.js，由 tools/build_voice.py 產生）；沒有時回傳空清單 */
-  window.CASE_VOICE = window.CASE_VOICE || {};
-  const voiceLoading = {};
-  App.loadVoice = function (id) {
-    if (window.CASE_VOICE[id]) return Promise.resolve(window.CASE_VOICE[id]);
-    if (!voiceLoading[id]) {
-      voiceLoading[id] = new Promise((resolve) => {
-        const s = document.createElement('script');
-        s.src = 'cases/' + id + '/voice/voice.js';
-        s.onload = () => resolve(window.CASE_VOICE[id] || {});
-        s.onerror = () => resolve({});
-        document.head.appendChild(s);
-      });
-    }
-    return voiceLoading[id];
-  };
-
   App.registryEntry = function (id) {
     return (window.CASE_REGISTRY || []).find((c) => c.id === id);
   };

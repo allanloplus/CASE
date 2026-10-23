@@ -1,4 +1,8 @@
-"""產生動畫閱讀的角色語音（edge-tts，沿用 ISO 27001 系列課程的 Allan 與阿拉蕾聲音）。
+"""產生 Allan 顧問與阿拉蕾的角色語音（edge-tts，沿用 ISO 27001 系列課程的聲音，不可更換）。
+
+配音範圍：動畫閱讀的所有對話、討論題的阿拉蕾提示、72 小時決策模擬的情境與 Allan 講評、
+法條連連看的 Allan 解說，以及 EXTRA_LINES 的固定台詞。網站依「角色|台詞文字」找語音，
+台詞改了而沒重新產生時，該句不會播放（不會播錯）。
 
 用法：
   pip install edge-tts
@@ -48,6 +52,8 @@ SPOKEN = [
     (r'\bWAF\b', 'W A F'),
     (r'\bNAS\b', 'N A S'),
     (r'\bAD\b', 'A D'),
+    (r'\bCIA\b', 'C I A'),
+    (r'\bMFA\b', 'M F A'),
     (r'\bSaaS\b', '沙斯'),
 ]
 DIGITS = '零一二三四五六七八九'
@@ -66,8 +72,15 @@ vm.createContext(ctx);
 vm.runInContext(fs.readFileSync(file, 'utf8'), ctx);
 if (id) {
   const d = ctx.window.CASE_LIBRARY[id];
+  const g = d.games || {};
   const lines = [];
   d.chapters.forEach((c) => c.scenes.forEach((s) => s.lines.forEach((l) => lines.push([l[0], l[2]]))));
+  d.questions.forEach((q) => q.hint && lines.push(['arale', q.hint]));
+  if (g.decision) g.decision.rounds.forEach((r) => {
+    lines.push([r.face[0], r.situation]);
+    r.options.forEach((o) => o.allan && lines.push(['allan', o.allan]));
+  });
+  if (g.law) g.law.pairs.forEach((p) => p.why && lines.push(['allan', p.why]));
   console.log(JSON.stringify(lines));
 } else {
   console.log(JSON.stringify(ctx.window.CASE_REGISTRY.filter((c) => c.status === 'ready').map((c) => c.id)));

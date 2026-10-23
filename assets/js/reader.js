@@ -32,6 +32,9 @@
     return d;
   }
 
+  /* 閱讀完成時阿拉蕾的固定台詞（tools/build_voice.py 的 EXTRA_LINES 也要同步） */
+  const FINALE_LINE = '辛苦了！討論區見，阿拉蕾幫你準備好遊戲了！';
+
   App.Reader = function (root, data) {
     const id = data.meta.id;
     const flat = [];
@@ -46,15 +49,8 @@
     let autoTimer = null;
     let renderedScene = -1;
     let finished = false;
-    let lastLine = null;
-
-    /* 角色語音：每句台詞一個音檔，播完才進入自動播放的下一步 */
-    let voiceOn = App.store.get('voice', true);
-    let voiceMap = {};
-    let voiceBusy = false;
-    let afterVoice = null;
-    const audio = new Audio();
-    audio.preload = 'auto';
+    let voiceActive = false;
+    let voiceMs = 0;
 
     /* ---- DOM ---- */
     const kicker = h('p', { class: 'kicker' });
@@ -73,17 +69,29 @@
     const actorArale = h('div', { class: 'actor actor-arale' }, App.charImg('arale', 'explain'));
     const bubbleName = h('span', { class: 'bubble-name' });
     const bubbleText = h('p', { class: 'bubble-text' });
-    const bubble = h('button', { type: 'button', class: 'bubble', 'aria-live': 'polite', onclick: () => next() }, bubbleName, bubbleText, h('span', { class: 'bubble-more', 'aria-hidden': 'true' }, '▸'));
+    const hasVoice = App.Voice.available(id);
+    const replay = hasVoice ? App.Voice.replayButton(() => replayLine()) : null;
+    const bubble = h(
+      'div',
+      { class: 'bubble', 'aria-live': 'polite', onclick: () => next() },
+      h('div', { class: 'bubble-head' }, bubbleName, replay),
+      bubbleText,
+      h('span', { class: 'bubble-more', 'aria-hidden': 'true' }, '▸')
+    );
     const cast = h('div', { class: 'stage-cast' }, actorAllan, bubble, actorArale);
     stage.append(backdropHolder, panels, cast);
 
     const btnPrev = h('button', { type: 'button', class: 'btn btn-ghost', onclick: () => prev() }, '上一步');
     const btnAuto = h('button', { type: 'button', class: 'btn btn-ghost', 'aria-pressed': 'false', onclick: () => toggleAuto() }, '自動播放');
-    const btnVoice = h('button', { type: 'button', class: 'btn btn-ghost', 'aria-pressed': String(voiceOn), hidden: true, onclick: () => toggleVoice() }, voiceOn ? '語音開' : '語音關');
     const btnNext = h('button', { type: 'button', class: 'btn btn-primary', onclick: () => next() }, '下一步');
     const counter = h('span', { class: 'counter mono' });
     const bar = h('span', { class: 'progress-bar' }, h('i'));
-    const controls = h('div', { class: 'reader-controls' }, btnPrev, h('div', { class: 'reader-meter' }, bar, counter), btnVoice, btnAuto, btnNext);
+    btnPrev.classList.add('ctl-prev');
+    btnAuto.classList.add('ctl-auto');
+    btnNext.classList.add('ctl-next');
+    const voiceToggle = hasVoice ? App.Voice.toggleButton() : null;
+    if (voiceToggle) voiceToggle.classList.add('ctl-voice');
+    const controls = h('div', { class: 'reader-controls' + (hasVoice ? ' has-voice' : '') }, btnPrev, h('div', { class: 'reader-meter' }, bar, counter), voiceToggle, btnAuto, btnNext);
 
     const head = h('div', { class: 'reader-head' }, h('div', null, kicker, title), dots);
     root.append(h('section', { class: 'reader' }, head, stage, controls, h('p', { class: 'reader-tip muted' }, '提示：點對話框或按「下一步」前進；鍵盤可用 ← → 鍵。')));
@@ -151,7 +159,6 @@
       bubble.classList.toggle('from-allan', who === 'allan');
       bubble.classList.toggle('from-arale', who === 'arale');
       bubbleName.textContent = App.cast[who].name;
-      lastLine = [who, text];
       speak(who, text);
       type(text);
 
@@ -171,17 +178,73 @@
         return;
       }
       const chars = Array.from(App.plain(text));
-      let i = 0;
       bubbleText.textContent = '';
       bubble.classList.add('typing');
-      typing = {
-        text,
-        timer: setInterval(() => {
-          i += 1;
-          bubbleText.textContent = chars.slice(0, i).join('');
-          if (i >= chars.length) finishTyping();
-        }, 34)
+      typing = { text, chars, i: 0, timer: null };
+      runTyping(34);
+    }
+    function runTyping(ms) {
+      if (!typing) return;
+      clearInterval(typing.timer);
+      const t = typing;
+      t.timer = setInterval(() => {
+        t.i += 1;
+        bubbleText.textContent = t.chars.slice(0, t.i).join('');
+        if (t.i >= t.chars.length) finishTyping();
+      }, ms);
+    }
+    /* 有語音時，字幕速度跟著語音長度走 */
+    function retime(seconds) {
+      if (!typing || !seconds || !isFinite(seconds)) return;
+      const ms = (seconds * 1000 * 0.9) / typing.chars.length;
+      runTyping(Math.max(20, Math.min(160, ms)));
+    }
+
+    function speak(who, text) {
+      App.Voice.stop();
+      voiceActive = false;
+      if (!hasVoice || !App.Voice.on()) return;
+      const url = App.Voice.url(who, text);
+      if (!url) return;
+      const actor = who === 'allan' ? actorAllan : actorArale;
+      const started = Date.now();
+      const quiet = () => {
+        actor.classList.remove('talking');
+        bubble.classList.remove('voicing');
+        voiceActive = false;
       };
+      voiceActive = true;
+      voiceMs = 0;
+      actor.classList.add('talking');
+      bubble.classList.add('voicing');
+      if (replay) replay.classList.remove('nudge');
+      App.Voice.play(url, {
+        onDuration: (d) => {
+          voiceMs = d * 1000;
+          retime(d);
+        },
+        onEnd: () => {
+          quiet();
+          voiceMs = voiceMs || Date.now() - started;
+          if (auto && !typing) scheduleAuto(text, true);
+        },
+        onStop: quiet,
+        onError: () => {
+          quiet();
+          if (auto && !typing) scheduleAuto(text);
+        },
+        onBlocked: () => {
+          quiet();
+          if (replay) replay.classList.add('nudge');
+          if (auto && !typing) scheduleAuto(text);
+        }
+      });
+    }
+    function replayLine() {
+      if (finished) return;
+      const [who, , text] = flat[s].sc.lines[l];
+      clearTimeout(autoTimer);
+      speak(who, text);
     }
     function finishTyping() {
       if (!typing) return;
@@ -198,18 +261,16 @@
       bubble.classList.remove('typing');
     }
 
-    function scheduleAuto(text) {
+    /* afterVoice：語音剛播完，只需短暫停頓；第一句另外保留讀旁白的時間 */
+    function scheduleAuto(text, afterVoice) {
       clearTimeout(autoTimer);
-      afterVoice = null;
-      if (!auto) return;
-      let wait = 1400 + Array.from(text).length * 70;
+      if (!auto || voiceActive) return;
+      let wait = afterVoice ? 900 : 1400 + Array.from(text).length * 70;
       if (l === 0) {
         const chars = flat[s].sc.narration.reduce((a, p) => a + (typeof p === 'string' ? p.length : p.list.join('').length), 0);
-        wait += chars * 45;
+        wait += Math.max(0, chars * 45 - (afterVoice ? voiceMs : 0));
       }
-      const begun = Date.now();
-      if (voiceBusy) afterVoice = () => (autoTimer = setTimeout(() => next(), Math.max(700, wait - (Date.now() - begun))));
-      else autoTimer = setTimeout(() => next(), wait);
+      autoTimer = setTimeout(() => next(), wait);
     }
 
     function toggleAuto() {
@@ -217,59 +278,7 @@
       btnAuto.setAttribute('aria-pressed', String(auto));
       btnAuto.textContent = auto ? '暫停播放' : '自動播放';
       if (auto && !typing) scheduleAuto(flat[s].sc.lines[l][2]);
-      if (!auto) {
-        clearTimeout(autoTimer);
-        afterVoice = null;
-      }
-    }
-
-    function setVoicing(who) {
-      actorAllan.classList.toggle('voicing', who === 'allan');
-      actorArale.classList.toggle('voicing', who === 'arale');
-    }
-    function voiceDone() {
-      voiceBusy = false;
-      setVoicing(null);
-      const fn = afterVoice;
-      afterVoice = null;
-      if (fn) fn();
-    }
-    function stopVoice() {
-      voiceBusy = false;
-      afterVoice = null;
-      setVoicing(null);
-      audio.pause();
-    }
-    function speak(who, text) {
-      stopVoice();
-      const file = voiceOn && voiceMap[who + '|' + text];
-      if (!file) return;
-      const src = 'cases/' + id + '/voice/' + file;
-      voiceBusy = true;
-      setVoicing(who);
-      audio.src = src;
-      const p = audio.play();
-      /* 瀏覽器擋下自動播放時，當作這句已播完 */
-      if (p && p.catch) p.catch(() => {
-        if (voiceBusy && audio.getAttribute('src') === src) voiceDone();
-      });
-    }
-    audio.addEventListener('ended', voiceDone);
-    audio.addEventListener('error', () => voiceBusy && voiceDone());
-
-    function toggleVoice() {
-      voiceOn = !voiceOn;
-      App.store.set('voice', voiceOn);
-      btnVoice.setAttribute('aria-pressed', String(voiceOn));
-      btnVoice.textContent = voiceOn ? '語音開' : '語音關';
-      if (!voiceOn) {
-        const fn = afterVoice;
-        stopVoice();
-        if (fn) fn();
-      } else if (lastLine) {
-        speak(lastLine[0], lastLine[1]);
-        if (auto && !typing && !finished) scheduleAuto(lastLine[1]);
-      }
+      if (!auto) clearTimeout(autoTimer);
     }
 
     function next() {
@@ -357,9 +366,8 @@
       bubble.classList.remove('from-allan');
       bubble.classList.add('from-arale');
       bubbleName.textContent = '阿拉蕾';
-      lastLine = ['arale', '辛苦了！討論區見，阿拉蕾幫你準備好遊戲了！'];
-      bubbleText.textContent = lastLine[1];
-      speak(lastLine[0], lastLine[1]);
+      bubbleText.textContent = FINALE_LINE;
+      speak('arale', FINALE_LINE);
       counter.textContent = totalSteps + ' / ' + totalSteps;
       bar.firstChild.style.width = '100%';
       btnNext.textContent = '前往討論區';
@@ -378,23 +386,19 @@
       }
     }
     document.addEventListener('keydown', onKey);
+    const unsubscribe = App.Voice.subscribe((on) => {
+      if (on || finished) return;
+      if (auto && !typing) scheduleAuto(flat[s].sc.lines[l][2]);
+    });
     App.onCleanup(() => {
+      unsubscribe();
+      App.Voice.stop();
       document.removeEventListener('keydown', onKey);
       stopTyping();
       clearTimeout(autoTimer);
-      stopVoice();
-      audio.removeAttribute('src');
     });
 
     App.preloadFaces();
     showLine();
-    App.loadVoice(id).then((map) => {
-      if (!stage.isConnected) return;
-      voiceMap = map;
-      const has = Object.keys(map).length > 0;
-      btnVoice.hidden = !has;
-      controls.classList.toggle('has-voice', has);
-      if (has && lastLine && !voiceBusy) speak(lastLine[0], lastLine[1]);
-    });
   };
 })();

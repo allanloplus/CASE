@@ -103,7 +103,12 @@
         h(
           'div',
           { class: 'mission-head' },
-          h('button', { type: 'button', class: 'btn btn-ghost btn-sm', onclick: () => App.go(id + '-discuss') }, '← 任務地圖'),
+          h(
+            'div',
+            { class: 'mission-tools' },
+            h('button', { type: 'button', class: 'btn btn-ghost btn-sm', onclick: () => App.go(id + '-discuss') }, '← 任務地圖'),
+            App.Voice.available(id) ? App.Voice.toggleButton() : null
+          ),
           h('p', { class: 'kicker' }, '任務 ' + (i + 1) + ' / ' + MISSIONS.length),
           h('h1', null, m.title)
         ),
@@ -133,7 +138,8 @@
     const checks = App.store.get('checks:' + id, {});
     const dim = data.dimensions[q.dim];
 
-    const hintBox = h('div', { class: 'q-hint', hidden: true }, App.talk('arale', 'think', q.hint, { flip: true }));
+    const hintTalk = App.talk('arale', 'think', q.hint, { flip: true });
+    const hintBox = h('div', { class: 'q-hint', hidden: true }, hintTalk);
     const ta = h('textarea', { id: 'note-' + q.id, class: 'q-note', rows: '4', placeholder: '寫下你的想法……（自動儲存在這台裝置）' });
     ta.value = notes[q.id] || '';
     let saveTimer;
@@ -149,6 +155,8 @@
     const btnHint = h('button', { type: 'button', class: 'btn btn-ghost btn-sm', 'aria-expanded': 'false', onclick: () => {
       hintBox.hidden = !hintBox.hidden;
       btnHint.setAttribute('aria-expanded', String(!hintBox.hidden));
+      if (!hintBox.hidden && App.Voice.on()) App.Voice.sayTalk(hintTalk);
+      else App.Voice.stop();
     } }, '阿拉蕾提示');
     const btnAns = h('button', { type: 'button', class: 'btn btn-primary btn-sm', onclick: reveal }, revealed[q.id] ? '收起參考答案' : '看 Allan 的參考答案');
 
