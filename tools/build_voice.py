@@ -40,6 +40,8 @@ SPOKEN = [
     (r'TWCERT/CC', 'TW CERT CC'),
     (r'PHP2Shell', 'PHP to Shell'),
     (r'\bPDCA\b', 'P D C A'),
+    (r'\bTISAX\b', 'TI SAX'),
+    (r'\bDLP\b', 'D L P'),
     (r'\bCMDB\b', 'C M D B'),
     (r'\bISMS\b', 'I S M S'),
     (r'\bPIMS\b', 'P I M S'),
@@ -47,9 +49,6 @@ SPOKEN = [
     (r'\bNAS\b', 'N A S'),
     (r'\bAD\b', 'A D'),
     (r'\bSaaS\b', '沙斯'),
-    (r'\bTISAX\b', 'Tisax'),
-    (r'\bDLP\b', 'D L P'),
-    (r'\bIT\b', 'I T'),
 ]
 DIGITS = '零一二三四五六七八九'
 
