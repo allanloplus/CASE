@@ -77,7 +77,8 @@
       );
     },
 
-    network() {
+    network(ex) {
+      const [partyA, partyB] = ex.parties || ['母公司', '子公司'];
       const node = (x, y, w, title, sub, kind) =>
         `<g class="net-node ${kind || ''}"><rect x="${x}" y="${y}" width="${w}" height="54" rx="8"/>` +
         `<text x="${x + w / 2}" y="${y + 23}" class="t1">${title}</text>` +
@@ -100,8 +101,8 @@
         node(404, 160, 150, '網域控制站', '新增 svc_backup2', 'hit') +
         node(214, 160, 150, '檔案伺服器', 'FS01', 'hit') +
         node(10, 160, 150, '國外雲端儲存', '外傳約 140GB', 'bad') +
-        node(574, 112, 128, '築遠建設', '電腦與伺服器', 'hit') +
-        node(574, 212, 128, '築遠營造', '電腦與伺服器', 'hit') +
+        node(574, 112, 128, partyA, '電腦與伺服器', 'hit') +
+        node(574, 212, 128, partyB, '電腦與伺服器', 'hit') +
         node(404, 300, 150, '線上備份 NAS', '加入網域・被加密', 'hit') +
         node(10, 262, 150, '不可變更備份', '與網域隔離・倖存', 'safe') +
         node(10, 330, 150, '異地磁帶', '10/8 送出・倖存', 'safe') +
