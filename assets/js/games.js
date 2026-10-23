@@ -227,7 +227,7 @@
           h('p', { class: 'kicker' }, '行為 ' + (idx + 1) + ' / ' + g.pairs.length),
           h('p', { class: 'law-act' }, p.act),
           h('p', { class: 'law-answer' }, '→ ' + law.label + '　' + law.name),
-          App.talk('allan', 'point', p.why),
+          App.talk('allan', 'point', p.why, { autoplay: true }),
           h(
             'div',
             { class: 'btn-row' },
@@ -321,7 +321,7 @@
           'div',
           { class: 'round-card' },
           h('p', { class: 'kicker' }, '第 ' + (round + 1) + ' 關 / 共 ' + g.rounds.length + ' 關　' + r.title),
-          App.talk(r.face[0], r.face[1], r.situation, { flip: r.face[0] === 'arale' }),
+          App.talk(r.face[0], r.face[1], r.situation, { flip: r.face[0] === 'arale', autoplay: true }),
           h(
             'div',
             { class: 'options' },
@@ -348,7 +348,7 @@
           h('p', { class: 'kicker' }, '你的選擇：' + String.fromCharCode(65 + i) + '　' + o.text),
           h('div', { class: 'deltas' }, chips),
           h('p', { class: 'outcome' }, o.result),
-          App.talk('allan', o.best ? 'laugh' : 'think', o.allan),
+          App.talk('allan', o.best ? 'laugh' : 'think', o.allan, { autoplay: true }),
           h('div', { class: 'btn-row' }, h('button', { type: 'button', class: 'btn btn-primary', onclick: nextRound }, round === g.rounds.length - 1 ? '看最終結果' : '下一關'))
         )
       );

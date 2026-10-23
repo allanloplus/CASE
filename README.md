@@ -40,6 +40,7 @@ index.html              網站入口
 assets/css/style.css    樣式（含深色模式）
 assets/js/
   core.js               共用工具、角色、儲存、路由
+  voice.js              語音播放
   exhibits.js           附件繪製（組織圖、日誌、攻擊路徑、重大訊息、暗網示意…）
   reader.js             動畫閱讀
   games.js              互動遊戲
@@ -50,8 +51,11 @@ assets/img/allan/       Allan 顧問表情與姿勢
 assets/img/arale/       阿拉蕾表情與姿勢
 assets/src/             角色設定原圖
 tools/make_sprites.py   由設定原圖切出角色貼圖
+tools/build_voice.py    產生 Allan 與阿拉蕾的對話語音
+tools/case_lines.js     列出個案中需要配音的台詞
 cases/registry.js       個案清單
 cases/S111001/case.js   個案內容（本文、對話、附件、題目、答案、遊戲、教學手冊）
+cases/S111001/voice/    對話語音檔與對照表（自動產生）
 ```
 
 ## 新增一個個案
@@ -61,7 +65,25 @@ cases/S111001/case.js   個案內容（本文、對話、附件、題目、答�
    - Allan 表情：`smile` `laugh` `think` `trouble` `surprise` `point` `wink` `shock`
    - 阿拉蕾表情：`laugh` `think` `surprise` `confused` `explain` `cry` `thumb` `cheer`
    - 場景背景 `bg`：`night` `office` `server` `alert` `meeting` `darkweb` `city`
-2. 在 `cases/registry.js` 把該案的 `status` 改為 `'ready'`，並補上 `title`、`minutes`。
+2. 執行 `python3 tools/build_voice.py <案號>` 產生對話語音。
+3. 在 `cases/registry.js` 把該案的 `status` 改為 `'ready'`，並補上 `title`、`minutes`。
+
+## 語音
+
+Allan 顧問與阿拉蕾的對話都有語音，沿用既有課程的聲音設定（`zh-TW-YunJheNeural`／`zh-TW-HsiaoYuNeural`）：
+
+- 動畫閱讀：每句對話自動播放，字幕速度與語音同步；開啟自動播放時，說完才換下一句；泡泡上的喇叭按鈕可重播。
+- 討論區：決策模擬的情境與講評、法條解說、討論題提示也會說話。
+- 「語音 開／關」按鈕可隨時切換。瀏覽器擋下自動播放時，點一下喇叭或「下一步」即可開始。
+
+修改台詞後重新產生語音：
+
+```bash
+pip install edge-tts      # 另需 ffmpeg
+python3 tools/build_voice.py S111001
+```
+
+語音檔輸出到 `cases/<案號>/voice/`，網站依台詞文字對應語音；台詞改了而沒重新產生時，該句會安靜不播，不會播錯。
 
 ## 更新角色圖
 

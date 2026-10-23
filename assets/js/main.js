@@ -57,6 +57,8 @@
     lastKey = route.key;
     const mySeq = ++seq;
     runCleanups();
+    App.Voice.stop();
+    App.Voice.caseId = route.caseId || null;
     renderNav(route);
     app.dataset.page = route.page;
     window.scrollTo(0, 0);
