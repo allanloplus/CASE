@@ -13,7 +13,7 @@
           'div',
           { class: 'org-row' },
           company(parent),
-          h('div', { class: 'org-link', 'aria-hidden': 'true' }, h('span', null, '持股 62%'), h('i')),
+          h('div', { class: 'org-link', 'aria-hidden': 'true' }, h('span', null, ex.link || '持股 62%'), h('i')),
           company(child)
         ),
         h('div', { class: 'org-down', 'aria-hidden': 'true' }, h('i'), h('i')),
@@ -52,7 +52,7 @@
           h(
             'table',
             { class: 'log-table' },
-            h('thead', null, h('tr', null, h('th', null, '時間'), h('th', null, '來源'), h('th', null, '紀錄'))),
+            h('thead', null, h('tr', null, (ex.cols || ['時間', '來源', '紀錄']).map((c) => h('th', null, c)))),
             h(
               'tbody',
               null,
@@ -125,7 +125,7 @@
         h(
           'div',
           { class: 'notice-head' },
-          h('span', null, '重大訊息'),
+          h('span', null, ex.label || '重大訊息'),
           h('span', { class: 'mono' }, ex.time)
         ),
         h('p', { class: 'notice-co' }, ex.company),
@@ -134,7 +134,34 @@
           'ol',
           { class: 'notice-items' },
           ex.items.map(([k, v]) => h('li', null, h('span', { class: 'notice-k' }, k + '：'), h('span', null, v)))
-        )
+        ),
+        ex.note ? h('p', { class: 'ex-note' }, ex.note) : null
+      );
+    },
+
+    /* 通訊軟體對話（me: true 為回覆方，靠右） */
+    chat(ex) {
+      return h(
+        'div',
+        { class: 'ex-chat' },
+        ex.day ? h('p', { class: 'chat-day' }, ex.day) : null,
+        ex.messages.map((m) =>
+          h(
+            'div',
+            { class: 'chat-row' + (m.me ? ' chat-me' : '') },
+            h('span', { class: 'chat-who' }, m.who),
+            h(
+              'div',
+              { class: 'chat-bubble' },
+              m.link
+                ? h('span', { class: 'chat-link' }, h('span', { class: 'chat-link-tag' }, m.link.tag || '新聞'), h('strong', null, m.link.title), m.link.note ? h('span', { class: 'muted' }, m.link.note) : null)
+                : null,
+              m.text ? h('p', null, m.text) : null
+            ),
+            h('span', { class: 'chat-time mono' }, m.time)
+          )
+        ),
+        ex.note ? h('p', { class: 'ex-note' }, ex.note) : null
       );
     },
 

@@ -12,13 +12,12 @@
     { key: 'final', title: '董事會決議', desc: '收斂成三項決議，整理管理意涵與你的研討筆記。', face: ['allan', 'laugh'] }
   ];
   App.MISSIONS = MISSIONS;
-  const DIMS = ['mgmt', 'tech', 'law', 'resp'];
-
-  /* 個案可在 data.missions 覆寫任務標題與說明 */
+  /* 個案可在 data.ui.missions 覆寫任務名稱與說明 */
   App.missionsFor = function (data) {
-    const over = (data && data.missions) || {};
-    return MISSIONS.map((m) => Object.assign({}, m, over[m.key]));
+    const custom = App.ui(data, 'missions', {});
+    return MISSIONS.map((m) => Object.assign({}, m, custom[m.key] || {}));
   };
+  const DIMS = ['mgmt', 'tech', 'law', 'resp'];
 
   function revealedSet(id) {
     return App.store.get('qrevealed:' + id, {});
@@ -47,6 +46,7 @@
     const id = data.meta.id;
     const states = App.missionState(id);
     const doneCount = states.filter((s) => s.done).length;
+    const finalTitle = states[states.length - 1].title;
 
     root.append(
       h(
@@ -58,7 +58,7 @@
       h(
         'div',
         { class: 'hub-talk' },
-        App.talk('allan', 'smile', doneCount === 0 ? App.uiText(data, 'hubIntro', '歡迎來到討論區！先當偵探找徵兆，再一路推進到董事會決議。每一題都沒有唯一解，重點是你的推理過程。') : doneCount === MISSIONS.length ? '六個任務全部完成，表現得很好！可以到「董事會決議」複製你的研討筆記。' : '已經完成 ' + doneCount + ' 個任務，繼續加油！'),
+        App.talk('allan', 'smile', doneCount === 0 ? App.ui(data, 'hub.welcome', '歡迎來到討論區！先當偵探找徵兆，再一路推進到董事會決議。每一題都沒有唯一解，重點是你的推理過程。') : doneCount === MISSIONS.length ? '六個任務全部完成，表現得很好！可以到「' + finalTitle + '」複製你的研討筆記。' : '已經完成 ' + doneCount + ' 個任務，繼續加油！'),
         App.talk('arale', doneCount === MISSIONS.length ? 'thumb' : 'cheer', doneCount === MISSIONS.length ? '全部亮燈！阿拉蕾幫你頒發研討完成章！' : '每完成一關就會亮起星星，阿拉蕾會在旁邊給提示喔！', { flip: true })
       ),
       h(
@@ -231,7 +231,7 @@
         law: ['allan', 'point', '法律面有兩個角度：駭客的刑事責任，以及企業自己作為個資保管者的責任。'],
         resp: ['arale', 'think', '企業因應最考驗判斷力：付不付錢、說不說、怎麼說？']
       },
-      App.uiText(data, 'dimIntro', {})
+      App.ui(data, 'dimIntro', {})
     );
     function paint() {
       tabs.replaceChildren(
@@ -275,7 +275,7 @@
     const allDone = states.every((m) => m.done);
 
     root.append(
-      h('p', { class: 'game-intro' }, App.uiText(data, 'finalLead', '最後一關：把前面的討論收斂成董事會上的三項決議，並回顧本個案的管理意涵。')),
+      h('p', { class: 'game-intro' }, App.ui(data, 'finalIntro', '最後一關：把前面的討論收斂成董事會上的三項決議，並回顧本個案的管理意涵。')),
       questionCard(data, finalQ, '綜合'),
       h(
         'section',
