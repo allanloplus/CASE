@@ -19,7 +19,7 @@ window.CASE_LIBRARY.S111005 = {
       text: '本個案改編自國家資通安全研究院《資安案例彙編—精選案例》案號 S111005「揮一揮衣袖 離職時請別帶走公司的營業秘密」，並參考相關公開報導。原始案例為美國科技公司自駕車專案工程師竊取營業秘密事件，本個案將場景移至臺灣，並依我國法規重新撰寫分析。',
       links: [
         { label: '國家資通安全研究院｜精選案例', url: 'https://www.nics.nat.gov.tw/cybersecurity_resources/publications/Compilation_of_Cases/Selected_Cases/' },
-        { label: '原案例參考資料（立法院，PDF）', url: 'http://misq.ly.gov.tw/MISQ/docu/MISQ3006/uploadFiles/2022042210/21222601042520061002.pdf' },
+        { label: '美國司法部起訴新聞稿（英文）', url: 'https://www.justice.gov/usao-ndca/pr/former-apple-employee-indicted-theft-trade-secrets' },
         { label: '9to5Mac 判決報導（英文）', url: 'https://9to5mac.com/2024/02/08/apple-engineer-project-titan-secrets-prison/' }
       ]
     },
