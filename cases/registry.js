@@ -13,7 +13,7 @@ window.CASE_REGISTRY = [
     id: 'S111001',
     status: 'ready',
     category: '資訊保護',
-    title: '倒數十天：築遠建設的勒索軟體風暴',
+    title: '倒數十天：艾倫建設的勒索軟體風暴',
     origin: '上市公司遭勒索軟體攻擊，海量資料遭洩',
     tags: ['勒索軟體', '雙重勒索', '備份與復原', '重大訊息', '個資外洩'],
     minutes: 90
