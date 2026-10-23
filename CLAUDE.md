@@ -16,9 +16,10 @@
    - 設定來源：`allanloplus/ISO27001_A01` 的 `lesson/build_audio.py`。
    - Allan 顧問：`zh-TW-YunJheNeural`，rate `+6%`
    - 阿拉蕾：`zh-TW-HsiaoYuNeural`，rate `+12%`，pitch `+28Hz`
-   - 改完台詞後執行 `python3 tools/build_voice.py <案號>`（需 `pip install edge-tts` 與 ffmpeg），把 `cases/<案號>/voice/` 一併提交。
-   - 新的英文縮寫或特殊唸法，加到 `tools/build_voice.py` 的 `SPOKEN`／`WORDS`。
-   - 配音範圍定義在 `tools/case_lines.js`：動畫閱讀對話、討論題提示、決策模擬的情境與講評、法條解說。新增會說話的元素時，記得一起加入。
+   - 改完台詞後執行 `python3 tools/build_voice.py <案號>`（不加案號則處理所有 `ready` 個案；需 `pip install edge-tts`），把 `cases/<案號>/voice/` 一併提交。
+   - 新的英文縮寫或特殊唸法，加到 `tools/build_voice.py` 的 `SPOKEN`。
+   - 配音範圍定義在 `tools/build_voice.py` 的 `NODE_DUMP` 與 `EXTRA_LINES`：動畫閱讀對話、討論題提示、決策模擬的情境與講評、法條解說、閱讀完成台詞。新增會說話的元素時，記得一起加入。
+   - 網站以「角色|台詞文字」對應語音檔（`cases/<案號>/voice/voice.js`），播放邏輯在 `assets/js/voice.js`。
 4. **製作資訊**：寫在 `case.js` 的 `meta.credits`：
    - 創意規劃：Allan Lo 顧問（http://www.123hi.org），＜製作年月＞
    - 個案內容：由 AI 改編原始案例生成
@@ -27,6 +28,7 @@
 ## 程式結構
 
 - 純靜態網站，沒有建置步驟。個案內容全部寫在 `cases/<案號>/case.js`，格式見 S111001 檔頭說明與 README。
+- 遊戲與討論區文字可用 `games.<遊戲>.labels` 與 `ui.*` 依個案覆寫（範例：S115001、S111005）。
 - 角色表情：Allan `smile laugh think trouble surprise point wink shock`；阿拉蕾 `laugh think surprise confused explain cry thumb cheer`。
 - 場景背景：`night office server alert meeting darkweb city`。
 - 個案以字詞錨點路由，例如 `#S111001-read`、`#S111001-discuss`。

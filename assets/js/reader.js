@@ -32,6 +32,9 @@
     return d;
   }
 
+  /* 閱讀完成時阿拉蕾的固定台詞（tools/build_voice.py 的 EXTRA_LINES 也要同步） */
+  const FINALE_LINE = '辛苦了！討論區見，阿拉蕾幫你準備好遊戲了！';
+
   App.Reader = function (root, data) {
     const id = data.meta.id;
     const flat = [];
@@ -335,7 +338,6 @@
 
     function finish() {
       finished = true;
-      App.Voice.stop();
       if (auto) toggleAuto();
       App.progress.mark(id, 'read');
       App.store.set('reader:' + id, { s: 0, l: 0 });
@@ -348,7 +350,7 @@
           { class: 'narration finale' },
           h('p', { class: 'kicker' }, '閱讀完成'),
           h('h2', null, '案情都掌握了，接下來換你做決定'),
-          h('p', null, '你已經讀完《' + data.meta.title + '》。到討論區完成六個任務：找出徵兆、重建攻擊鏈、配對法條、四大面向討論，最後在 72 小時決策模擬中扮演總經理。'),
+          h('p', null, '你已經讀完《' + data.meta.title + '》。' + App.ui(data, 'readerFinale', '到討論區完成六個任務：找出徵兆、重建攻擊鏈、配對法條、四大面向討論，最後在 72 小時決策模擬中扮演總經理。')),
           h(
             'div',
             { class: 'btn-row' },
@@ -364,7 +366,8 @@
       bubble.classList.remove('from-allan');
       bubble.classList.add('from-arale');
       bubbleName.textContent = '阿拉蕾';
-      bubbleText.textContent = '辛苦了！討論區見，阿拉蕾幫你準備好遊戲了！';
+      bubbleText.textContent = FINALE_LINE;
+      speak('arale', FINALE_LINE);
       counter.textContent = totalSteps + ' / ' + totalSteps;
       bar.firstChild.style.width = '100%';
       btnNext.textContent = '前往討論區';

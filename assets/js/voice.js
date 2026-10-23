@@ -1,4 +1,4 @@
-/* 語音：依台詞文字找出 cases/<案號>/voice/ 的語音檔並播放（由 tools/build_voice.py 產生） */
+/* 語音：依「角色|台詞文字」找出 cases/<案號>/voice/ 的語音檔並播放（由 tools/build_voice.py 產生） */
 (function () {
   'use strict';
   const { h } = App;
@@ -35,18 +35,18 @@
   Voice.url = function (who, text, caseId) {
     const id = caseId || Voice.caseId;
     const m = Voice.map(id);
-    const file = m && m[who] && m[who][text];
+    const file = m && m[who + '|' + text];
     return file ? 'cases/' + id + '/voice/' + file : null;
   };
   Voice.on = function () {
-    return App.store.get('voice:on', true);
+    return App.store.get('voice', true);
   };
   Voice.subscribe = function (fn) {
     listeners.add(fn);
     return () => listeners.delete(fn);
   };
   Voice.set = function (on) {
-    App.store.set('voice:on', on);
+    App.store.set('voice', on);
     if (!on) Voice.stop();
     listeners.forEach((fn) => fn(on));
   };

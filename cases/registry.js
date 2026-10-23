@@ -10,6 +10,15 @@ window.CASE_REGISTRY = [
     minutes: 90
   },
   {
+    id: 'S115001',
+    status: 'ready',
+    category: '威脅情資',
+    title: '總經理先看到新聞：PHP2Shell 情資應變的 48 小時',
+    origin: 'PHP2Shell 重大漏洞外洩與緊急修補，日本首相示警（2026 年 10 月公開報導）',
+    tags: ['威脅情資', '漏洞管理', 'PHP2Shell', '資產盤點', '委外管理'],
+    minutes: 90
+  },
+  {
     id: 'S111002',
     status: 'planned',
     category: '資訊保護',
@@ -32,9 +41,11 @@ window.CASE_REGISTRY = [
   },
   {
     id: 'S111005',
-    status: 'planned',
+    status: 'ready',
     category: '資訊保護',
+    title: '起飛之前：晟馳科技的營業秘密保衛戰',
     origin: '揮一揮衣袖 離職時請別帶走公司的營業秘密',
-    tags: ['營業秘密', '合理保密措施', '日誌監控']
+    tags: ['營業秘密', '內部威脅', '合理保密措施', '離職管理', '日誌監控'],
+    minutes: 90
   }
 ];

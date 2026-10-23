@@ -23,8 +23,32 @@
   }
 
   /* ---------- 徵兆偵探 ---------- */
+  /* 各遊戲的文字可由 data.games.<遊戲>.labels 覆寫，沒有設定時沿用下列預設 */
+  const SIGN_LABELS = {
+    yes: '可疑徵兆',
+    no: '正常活動',
+    yesIs: '這是攻擊徵兆',
+    noIs: '這是正常活動',
+    yesShort: '攻擊徵兆',
+    noShort: '正常',
+    col: '紀錄',
+    mono: true,
+    kicker: '偵探報告',
+    found: '個攻擊徵兆',
+    start: '這些是資訊處當時收到的紀錄。哪些是駭客留下的腳印？點選「可疑」或「正常」！',
+    rightYes: '抓到了！這一筆真的有問題！',
+    rightNo: '沒錯，這是日常維運，不用緊張。',
+    missYes: '啊，這筆其實是警訊！看看 Allan 的說明。',
+    missNo: '這筆其實是正常的……太緊張也會造成告警疲勞喔。',
+    reset: '重新開始！慢慢看時間、來源和內容。',
+    good: '眼力很好！在真實世界裡，關鍵是讓這些告警「有人負責看、看了有人處理」。',
+    mid: '這些徵兆都留下了紀錄。想一想：如果是你的公司，哪一筆告警會寄到「沒人看的信箱」？'
+  };
+  Games.signLabels = (g) => Object.assign({}, SIGN_LABELS, g.labels || {});
+
   Games.signs = function (root, data, done) {
     const g = data.games.signs;
+    const L = Games.signLabels(g);
     const key = 'signs:' + data.meta.id;
     let answers = App.store.get(key, {});
     const talk = speaker();
@@ -48,10 +72,10 @@
           h(
             'div',
             { class: 'result-card' },
-            h('p', { class: 'kicker' }, '偵探報告'),
-            h('p', { class: 'result-big' }, '找到 ', h('b', null, found), ' / ' + totalSigns + ' 個攻擊徵兆'),
+            h('p', { class: 'kicker' }, L.kicker),
+            h('p', { class: 'result-big' }, '找到 ', h('b', null, found), ' / ' + totalSigns + ' ' + L.found),
             stars(score),
-            App.talk('allan', score === 3 ? 'laugh' : 'point', score === 3 ? '眼力很好！在真實世界裡，關鍵是讓這些告警「有人負責看、看了有人處理」。' : '這些徵兆都留下了紀錄。想一想：如果是你的公司，哪一筆告警會寄到「沒人看的信箱」？'),
+            App.talk('allan', score === 3 ? 'laugh' : 'point', score === 3 ? L.good : L.mid),
             h('div', { class: 'btn-row' }, h('button', { type: 'button', class: 'btn btn-ghost', onclick: reset }, '重新挑戰'))
           )
         );
@@ -65,7 +89,7 @@
         const a = answers[i];
         li.replaceChildren(
           h('div', { class: 'sign-meta' }, h('span', { class: 'mono' }, it.t), h('span', { class: 'chip' }, it.src)),
-          h('p', { class: 'sign-msg mono' }, it.msg)
+          h('p', { class: 'sign-msg' + (L.mono ? ' mono' : '') }, it.msg)
         );
         if (a === undefined) {
           li.className = 'sign-item';
@@ -73,8 +97,8 @@
             h(
               'div',
               { class: 'sign-actions' },
-              h('button', { type: 'button', class: 'btn btn-alert', onclick: () => pick(true) }, '可疑徵兆'),
-              h('button', { type: 'button', class: 'btn btn-ghost', onclick: () => pick(false) }, '正常活動')
+              h('button', { type: 'button', class: 'btn btn-alert', onclick: () => pick(true) }, L.yes),
+              h('button', { type: 'button', class: 'btn btn-ghost', onclick: () => pick(false) }, L.no)
             )
           );
         } else {
@@ -84,7 +108,7 @@
             h(
               'div',
               { class: 'sign-why' },
-              h('p', { class: 'verdict' }, (ok ? '答對了：' : '再想想：') + (it.sign ? '這是攻擊徵兆' : '這是正常活動')),
+              h('p', { class: 'verdict' }, (ok ? '答對了：' : '再想想：') + (it.sign ? L.yesIs : L.noIs)),
               h('p', null, it.why),
               it.ctrl ? h('p', { class: 'ctrl' }, 'ISO 27001:2022　' + it.ctrl) : null
             )
@@ -96,10 +120,10 @@
         App.store.set(key, answers);
         paint();
         const ok = v === it.sign;
-        if (ok && it.sign) talk.say('arale', 'cheer', '抓到了！這一筆真的有問題！');
-        else if (ok) talk.say('arale', 'thumb', '沒錯，這是日常維運，不用緊張。');
-        else if (it.sign) talk.say('arale', 'surprise', '啊，這筆其實是警訊！看看 Allan 的說明。');
-        else talk.say('arale', 'confused', '這筆其實是正常的……太緊張也會造成告警疲勞喔。');
+        if (ok && it.sign) talk.say('arale', 'cheer', L.rightYes);
+        else if (ok) talk.say('arale', 'thumb', L.rightNo);
+        else if (it.sign) talk.say('arale', 'surprise', L.missYes);
+        else talk.say('arale', 'confused', L.missNo);
         update();
       }
       paint();
@@ -110,19 +134,31 @@
       answers = {};
       App.store.set(key, answers);
       list.replaceChildren(...g.items.map(row));
-      talk.say('arale', 'think', '重新開始！慢慢看時間、來源和內容。');
+      talk.say('arale', 'think', L.reset);
       update();
     }
 
-    talk.say('arale', 'explain', '這些是資訊處當時收到的紀錄。哪些是駭客留下的腳印？點選「可疑」或「正常」！');
+    talk.say('arale', 'explain', L.start);
     list.replaceChildren(...g.items.map(row));
     root.append(h('p', { class: 'game-intro' }, g.intro), talk.el, status, list, summary);
     update();
   };
 
   /* ---------- 攻擊鏈拼圖 ---------- */
+  const CHAIN_LABELS = {
+    tag: 'ATT&CK ',
+    defend: '防線：',
+    start: '駭客一步一步走進來。從第 1 步開始，依序點選卡片吧！',
+    right: '答對！下一步是什麼呢？',
+    done: '完成了！七個階段全部排好！',
+    kicker: '拼圖完成',
+    closing: '攻擊者潛伏了兩週，七個階段都是攔截的機會。對照每一關的「防線」，想想你的組織缺了哪一道。'
+  };
+  Games.chainLabels = (g) => Object.assign({}, CHAIN_LABELS, g.labels || {});
+
   Games.killchain = function (root, data, done) {
     const g = data.games.killchain;
+    const L = Games.chainLabels(g);
     const talk = speaker();
     const slots = h('ol', { class: 'chain-slots' });
     const pool = h('div', { class: 'chain-pool' });
@@ -140,7 +176,7 @@
         )
       );
       summary.replaceChildren();
-      talk.say('arale', 'explain', '駭客一步一步走進來。從第 1 步開始，依序點選卡片吧！');
+      talk.say('arale', 'explain', L.start);
     }
 
     function pick(btn, i) {
@@ -150,12 +186,12 @@
         slot.className = 'chain-slot filled';
         slot.replaceChildren(
           h('span', { class: 'slot-no' }, i + 1),
-          h('div', { class: 'slot-body' }, h('strong', null, st.stage), h('span', null, st.act), h('span', { class: 'slot-attack mono' }, 'ATT&CK ' + st.attack), h('span', { class: 'slot-defend' }, '防線：' + st.defend))
+          h('div', { class: 'slot-body' }, h('strong', null, st.stage), h('span', null, st.act), h('span', { class: 'slot-attack mono' }, L.tag + st.attack), h('span', { class: 'slot-defend' }, L.defend + st.defend))
         );
         btn.remove();
         placed += 1;
         if (placed === g.steps.length) finish();
-        else talk.say('arale', 'cheer', '答對！下一步是什麼呢？');
+        else talk.say('arale', 'cheer', L.right);
       } else {
         mistakes += 1;
         btn.classList.remove('shake');
@@ -167,15 +203,15 @@
 
     function finish() {
       const score = mistakes === 0 ? 3 : mistakes <= 3 ? 2 : 1;
-      talk.say('arale', 'laugh', '完成了！七個階段全部排好！');
+      talk.say('arale', 'laugh', L.done);
       summary.replaceChildren(
         h(
           'div',
           { class: 'result-card' },
-          h('p', { class: 'kicker' }, '拼圖完成'),
+          h('p', { class: 'kicker' }, L.kicker),
           h('p', { class: 'result-big' }, '排錯 ', h('b', null, mistakes), ' 次'),
           stars(score),
-          App.talk('allan', 'point', '攻擊者潛伏了兩週，七個階段都是攔截的機會。對照每一關的「防線」，想想你的組織缺了哪一道。'),
+          App.talk('allan', 'point', L.closing),
           h('div', { class: 'btn-row' }, h('button', { type: 'button', class: 'btn btn-ghost', onclick: build }, '再排一次'))
         )
       );
@@ -187,8 +223,17 @@
   };
 
   /* ---------- 法條連連看 ---------- */
+  const LAW_LABELS = {
+    item: '行為',
+    start: '這個行為對應哪一條？從下面選一個！',
+    finish: '八個行為、八條規範，你都對上了。',
+    passed: '法律關卡通過！',
+    closing: '刑法管的是駭客，個資法與重大訊息規範管的是企業自己。被害人同時也可能是責任人，這是本案法律面最值得思考的地方。'
+  };
+
   Games.law = function (root, data, done) {
     const g = data.games.law;
+    const L = Object.assign({}, LAW_LABELS, g.labels || {});
     const talk = speaker();
     const card = h('div', { class: 'law-card' });
     const grid = h('div', { class: 'law-grid' });
@@ -212,8 +257,8 @@
 
     function showAct() {
       const p = g.pairs[idx];
-      card.replaceChildren(h('p', { class: 'kicker' }, '行為 ' + (idx + 1) + ' / ' + g.pairs.length), h('p', { class: 'law-act' }, p.act));
-      talk.say('arale', 'think', '這個行為對應哪一條？從下面選一個！');
+      card.replaceChildren(h('p', { class: 'kicker' }, L.item + ' ' + (idx + 1) + ' / ' + g.pairs.length), h('p', { class: 'law-act' }, p.act));
+      talk.say('arale', 'think', L.start);
     }
 
     function pick(btn, law) {
@@ -224,7 +269,7 @@
         btn.classList.add('matched');
         btn.disabled = true;
         card.replaceChildren(
-          h('p', { class: 'kicker' }, '行為 ' + (idx + 1) + ' / ' + g.pairs.length),
+          h('p', { class: 'kicker' }, L.item + ' ' + (idx + 1) + ' / ' + g.pairs.length),
           h('p', { class: 'law-act' }, p.act),
           h('p', { class: 'law-answer' }, '→ ' + law.label + '　' + law.name),
           App.talk('allan', 'point', p.why, { autoplay: true }),
@@ -252,15 +297,15 @@
 
     function finish() {
       const score = mistakes === 0 ? 3 : mistakes <= 3 ? 2 : 1;
-      card.replaceChildren(h('p', { class: 'kicker' }, '全部配對完成'), h('p', { class: 'law-act' }, '八個行為、八條規範，你都對上了。'));
-      talk.say('arale', 'laugh', '法律關卡通過！');
+      card.replaceChildren(h('p', { class: 'kicker' }, '全部配對完成'), h('p', { class: 'law-act' }, L.finish));
+      talk.say('arale', 'laugh', L.passed);
       summary.replaceChildren(
         h(
           'div',
           { class: 'result-card' },
           h('p', { class: 'result-big' }, '選錯 ', h('b', null, mistakes), ' 次'),
           stars(score),
-          App.talk('allan', 'smile', '刑法管的是駭客，個資法與重大訊息規範管的是企業自己。被害人同時也可能是責任人，這是本案法律面最值得思考的地方。'),
+          App.talk('allan', 'smile', L.closing),
           h('div', { class: 'btn-row' }, h('button', { type: 'button', class: 'btn btn-ghost', onclick: build }, '再玩一次'))
         )
       );
@@ -272,8 +317,18 @@
   };
 
   /* ---------- 72 小時決策模擬 ---------- */
+  const DECISION_LABELS = {
+    endKicker: '董事會結束',
+    profileKeys: ['trust', 'legal'],
+    good: ['坦誠合規型決策者', '你選擇正面面對：不付贖金、直接通知、即時更正揭露。短期痛，長期換回信任。'],
+    bad: ['風險累積型決策者', '你的選擇在短期內避開了衝擊，但信任與法遵風險持續累積，下一次危機會更難處理。'],
+    mid: ['務實權衡型決策者', '你在成本、營運與信任之間做了取捨。回頭看看哪一關的選擇，讓指標掉得最多。'],
+    closing: '真實的決策沒有標準答案，但有比較好的「決策過程」：先保護受害者、遵守揭露義務、留下紀錄，再談成本。'
+  };
+
   Games.decision = function (root, data, done) {
     const g = data.games.decision;
+    const L = Object.assign({}, DECISION_LABELS, g.labels || {});
     const meterEls = {};
     let values = {};
     let round = 0;
@@ -363,15 +418,16 @@
     function finish() {
       const bestCount = picks.filter((p, i) => g.rounds[i].options[p].best).length;
       const score = bestCount === g.rounds.length ? 3 : bestCount >= 2 ? 2 : 1;
+      const [k1, k2] = L.profileKeys;
       let profile;
-      if (values.trust >= 60 && values.legal >= 60) profile = ['坦誠合規型決策者', '你選擇正面面對：不付贖金、直接通知、即時更正揭露。短期痛，長期換回信任。'];
-      else if (values.trust < 40 && values.legal < 40) profile = ['風險累積型決策者', '你的選擇在短期內避開了衝擊，但信任與法遵風險持續累積，下一次危機會更難處理。'];
-      else profile = ['務實權衡型決策者', '你在成本、營運與信任之間做了取捨。回頭看看哪一關的選擇，讓指標掉得最多。'];
+      if (values[k1] >= 60 && values[k2] >= 60) profile = L.good;
+      else if (values[k1] < 40 && values[k2] < 40) profile = L.bad;
+      else profile = L.mid;
       stageEl.replaceChildren(
         h(
           'div',
           { class: 'round-card final' },
-          h('p', { class: 'kicker' }, '董事會結束'),
+          h('p', { class: 'kicker' }, L.endKicker),
           h('p', { class: 'result-big' }, profile[0]),
           stars(score),
           h('p', null, profile[1]),
@@ -384,7 +440,7 @@
               return h('li', { class: o.best ? 'is-best' : '' }, h('strong', null, r.title + '：'), o.text, o.best ? h('span', { class: 'tag-ok' }, '與 Allan 建議相同') : h('span', { class: 'tag-alt' }, 'Allan 建議：' + best.text));
             })
           ),
-          App.talk('allan', 'smile', '真實的決策沒有標準答案，但有比較好的「決策過程」：先保護受害者、遵守揭露義務、留下紀錄，再談成本。'),
+          App.talk('allan', 'smile', L.closing),
           h('div', { class: 'btn-row' }, h('button', { type: 'button', class: 'btn btn-ghost', onclick: start }, '重新模擬'))
         )
       );

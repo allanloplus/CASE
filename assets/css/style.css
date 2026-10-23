@@ -1481,6 +1481,78 @@ button {
 .notice-k {
   color: var(--ink-2);
 }
+.ex-chat {
+  display: grid;
+  gap: 10px;
+  font-size: 0.9rem;
+  background: var(--sheet-2);
+  padding: 12px;
+  border-radius: var(--radius-sm);
+}
+.chat-day {
+  justify-self: center;
+  margin: 0;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--sheet);
+  color: var(--ink-2);
+  font-size: 0.78rem;
+}
+.chat-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas: 'who who' 'bubble time';
+  gap: 2px 6px;
+  align-items: end;
+  max-width: 88%;
+  justify-self: start;
+}
+.chat-me {
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-areas: 'who who' 'time bubble';
+  justify-self: end;
+}
+.chat-who {
+  grid-area: who;
+  font-size: 0.78rem;
+  color: var(--ink-2);
+}
+.chat-me .chat-who {
+  text-align: right;
+}
+.chat-bubble {
+  grid-area: bubble;
+  display: grid;
+  gap: 6px;
+  padding: 8px 12px;
+  border: 1.5px solid var(--rule);
+  border-radius: 4px 14px 14px 14px;
+  background: var(--sheet);
+}
+.chat-me .chat-bubble {
+  border-radius: 14px 4px 14px 14px;
+  background: var(--teal-soft);
+}
+.chat-bubble p {
+  margin: 0;
+}
+.chat-time {
+  grid-area: time;
+  font-size: 0.72rem;
+  color: var(--ink-2);
+}
+.chat-link {
+  display: grid;
+  gap: 2px;
+  padding: 6px 8px;
+  border-left: 3px solid var(--navy);
+  background: var(--navy-soft);
+  border-radius: 4px;
+}
+.chat-link-tag {
+  font-size: 0.72rem;
+  color: var(--ink-2);
+}
 .ex-leak {
   background: #06080c;
   color: #e9edf2;
@@ -1578,6 +1650,223 @@ button {
 .tl-time {
   color: var(--ink-2);
   font-size: 0.8rem;
+}
+.ex-profile {
+  display: grid;
+  gap: 10px;
+}
+.ex-profile .org-co {
+  background: var(--navy-soft);
+}
+.ex-flow {
+  display: grid;
+  gap: 12px;
+}
+.flow-lane {
+  display: grid;
+  gap: 6px;
+}
+.flow-title {
+  font-weight: 700;
+  font-size: 0.86rem;
+  color: var(--ink-2);
+}
+.flow-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  gap: 22px;
+}
+.flow-step {
+  position: relative;
+  display: grid;
+  align-content: start;
+  gap: 2px;
+  padding: 8px 10px;
+  border: 1.5px solid var(--rule);
+  border-radius: var(--radius-sm);
+  background: var(--sheet);
+  font-size: 0.84rem;
+}
+.flow-step span {
+  color: var(--ink-2);
+  font-size: 0.78rem;
+  overflow-wrap: anywhere;
+}
+.flow-step + .flow-step::before {
+  content: '→';
+  position: absolute;
+  left: -19px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-weight: 700;
+  color: var(--alert);
+}
+.flow-steps.plain {
+  gap: 8px;
+}
+.flow-steps.plain .flow-step + .flow-step::before {
+  content: none;
+}
+.flow-step.k-hit,
+.flow-legend .k-hit::before {
+  background: var(--alert-soft);
+  border-color: var(--alert);
+}
+.flow-step.k-out,
+.flow-legend .k-out::before {
+  background: var(--sun-soft);
+  border-color: var(--sun);
+  border-width: 2.5px;
+}
+.flow-step.k-bad,
+.flow-legend .k-bad::before {
+  background: var(--alert);
+  border-color: var(--rule);
+}
+.flow-step.k-bad,
+.flow-step.k-bad span {
+  color: var(--on-accent);
+}
+.flow-step.k-ctrl,
+.flow-legend .k-ctrl::before {
+  background: var(--ok-soft);
+  border-color: var(--ok);
+}
+.flow-legend {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  font-size: 0.8rem;
+  color: var(--ink-2);
+}
+.flow-legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.flow-legend li::before {
+  content: '';
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+  border: 1.5px solid var(--rule);
+  background: var(--sheet);
+}
+.ex-cctv {
+  background: #0b0f0d;
+  color: #d8f3dc;
+  border: 2px solid #2f3b35;
+  border-radius: var(--radius-sm);
+  padding: 10px 12px 12px;
+  display: grid;
+  gap: 8px;
+  position: relative;
+  overflow: hidden;
+}
+.ex-cctv::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.04) 0 1px, transparent 1px 3px);
+  pointer-events: none;
+}
+.cctv-top,
+.cctv-bottom {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+}
+.cctv-rec {
+  color: #ff5a4f;
+  font-weight: 600;
+}
+.cctv-rec::before {
+  content: '● ';
+  animation: caret 0.6s steps(2) infinite alternate;
+}
+.cctv-view svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 220px;
+}
+.cctv-floor,
+.cctv-arm {
+  stroke: #6b8f7a;
+  stroke-width: 2;
+  fill: none;
+}
+.cctv-door {
+  fill: none;
+  stroke: #3e5247;
+  stroke-width: 2;
+}
+.cctv-fig {
+  fill: #9fc5ad;
+}
+.cctv-cart,
+.cctv-box {
+  fill: #2b3a32;
+  stroke: #9fc5ad;
+  stroke-width: 1.5;
+}
+.cctv-wheel {
+  fill: #9fc5ad;
+}
+.cctv-tag {
+  fill: none;
+  stroke: #f5c84a;
+  stroke-width: 1.5;
+  stroke-dasharray: 5 3;
+}
+.cctv-notes {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 2px;
+  font-size: 0.82rem;
+  color: #f5c84a;
+}
+.cctv-notes li::before {
+  content: '▸ ';
+}
+.ex-clauses {
+  display: grid;
+  gap: 8px;
+  font-size: 0.9rem;
+}
+.clause-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 8px;
+}
+.clause-list li {
+  display: grid;
+  gap: 2px;
+  padding: 6px 10px;
+  border-left: 3px solid var(--rule);
+  background: var(--sheet-2);
+  border-radius: 0 6px 6px 0;
+}
+.clause-list li.flag-weak {
+  border-left-color: var(--alert);
+  background: var(--alert-soft);
+}
+.clause-list li.flag-good {
+  border-left-color: var(--ok);
+  background: var(--ok-soft);
 }
 
 /* ---------- 討論區 ---------- */
@@ -1954,6 +2243,9 @@ button {
 }
 .meter-cash .meter-track i {
   background: var(--sun);
+}
+.meter-secure .meter-track i {
+  background: var(--alert);
 }
 .meter-num {
   text-align: right;
@@ -2594,6 +2886,19 @@ button {
   .ex-timeline li {
     grid-template-columns: minmax(0, 1fr);
     gap: 0;
+  }
+  .flow-steps {
+    grid-auto-flow: row;
+    gap: 18px;
+  }
+  .flow-steps.plain {
+    gap: 8px;
+  }
+  .flow-step + .flow-step::before {
+    content: '↓';
+    left: 50%;
+    top: -17px;
+    transform: translateX(-50%);
   }
   .badge-box {
     grid-template-columns: minmax(0, 1fr);

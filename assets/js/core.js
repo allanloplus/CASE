@@ -178,6 +178,16 @@
     return (window.CASE_REGISTRY || []).find((c) => c.id === id);
   };
 
+  /* 個案自訂文字：data.ui 依點分路徑取值，沒有設定時用預設值 */
+  App.ui = function (data, path, fallback) {
+    let v = data && data.ui;
+    for (const k of path.split('.')) {
+      if (v == null) break;
+      v = v[k];
+    }
+    return v == null ? fallback : v;
+  };
+
   /* ---------- 進度 ---------- */
   App.progress = {
     get(caseId) {
