@@ -1,21 +1,21 @@
 /* 個案清單：新增個案時，在此登錄一筆，並建立 cases/<案號>/case.js */
 window.CASE_REGISTRY = [
   {
-    id: 'S111001',
-    status: 'ready',
-    category: '資訊保護',
-    title: '倒數十天：築遠建設的勒索軟體風暴',
-    origin: '上市公司遭勒索軟體攻擊，海量資料遭洩',
-    tags: ['勒索軟體', '雙重勒索', '備份與復原', '重大訊息', '個資外洩'],
-    minutes: 90
-  },
-  {
     id: 'S115001',
     status: 'ready',
     category: '威脅情資',
     title: '總經理先看到新聞：PHP2Shell 情資應變的 48 小時',
     origin: 'PHP2Shell 重大漏洞外洩與緊急修補，日本首相示警（2026 年 10 月公開報導）',
     tags: ['威脅情資', '漏洞管理', 'PHP2Shell', '資產盤點', '委外管理'],
+    minutes: 90
+  },
+  {
+    id: 'S111001',
+    status: 'ready',
+    category: '資訊保護',
+    title: '倒數十天：築遠建設的勒索軟體風暴',
+    origin: '上市公司遭勒索軟體攻擊，海量資料遭洩',
+    tags: ['勒索軟體', '雙重勒索', '備份與復原', '重大訊息', '個資外洩'],
     minutes: 90
   },
   {
