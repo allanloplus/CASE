@@ -120,7 +120,7 @@
         h('div', { class: 'panel' }, h('h2', null, '學習目標'), h('ul', { class: 'check-list' }, data.teaching.objectives.map((o) => h('li', null, o)))),
         h('div', { class: 'panel' }, h('h2', null, '個案人物'), castList(data))
       ),
-      sourceBlock(data)
+      sourceBlock(data, true)
     );
   };
 
@@ -132,12 +132,25 @@
     );
   }
 
-  function sourceBlock(data) {
+  /* 創意規劃與個案內容產生方式 */
+  function credits(data) {
+    const c = data.meta.credits;
+    if (!c) return null;
+    return h(
+      'dl',
+      { class: 'credits' },
+      h('div', null, h('dt', null, '創意規劃'), h('dd', null, c.planner + '（', h('a', { href: c.url, target: '_blank', rel: 'noopener' }, c.url.replace(/^https?:\/\//, '')), '），' + c.date)),
+      h('div', null, h('dt', null, '個案內容'), h('dd', null, c.content))
+    );
+  }
+
+  function sourceBlock(data, withCredits) {
     const s = data.meta.source;
     return h(
       'section',
       { class: 'source-note' },
       h('h2', null, '來源與聲明'),
+      withCredits ? credits(data) : null,
       h('p', null, s.text),
       h('ul', { class: 'link-list' }, s.links.map((l) => h('li', null, h('a', { href: l.url, target: '_blank', rel: 'noopener' }, l.label)))),
       h('p', { class: 'muted' }, data.meta.disclaimer)
@@ -155,7 +168,7 @@
         h('p', { class: 'kicker' }, '企業個案・案號 ' + m.id),
         h('h1', null, m.title),
         h('p', { class: 'lead' }, m.subtitle),
-        h('p', { class: 'muted' }, 'CASE 資安個案研究室 編撰')
+        credits(data)
       ),
       h('aside', { class: 'doc-note' }, m.disclaimer),
       h('h2', null, '個案人物'),
@@ -192,7 +205,7 @@
     const t = data.teaching;
     const doc = h('article', { class: 'doc teach' });
     doc.append(
-      h('header', { class: 'doc-head' }, h('p', { class: 'kicker' }, '教學手冊・案號 ' + m.id), h('h1', null, m.title), h('p', { class: 'lead' }, '供講師與帶領人使用，包含參考答案與遊戲解答。')),
+      h('header', { class: 'doc-head' }, h('p', { class: 'kicker' }, '教學手冊・案號 ' + m.id), h('h1', null, m.title), h('p', { class: 'lead' }, '供講師與帶領人使用，包含參考答案與遊戲解答。'), credits(data)),
       h('h2', null, '個案摘要'),
       h('p', null, t.summary),
       h('h2', null, '教學目標'),

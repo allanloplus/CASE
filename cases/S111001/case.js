@@ -31,6 +31,12 @@ window.CASE_LIBRARY.S111001 = {
         { label: 'iThome 相關報導（二）', url: 'https://www.ithome.com.tw/news/147627' }
       ]
     },
+    credits: {
+      planner: 'Allan Lo 顧問',
+      url: 'http://www.123hi.org',
+      date: '2026 年 10 月',
+      content: '由 AI 改編原始案例生成'
+    },
     disclaimer: '本個案以公開資訊為基礎改編，供課堂討論之用。公司名稱、人物、對話、數據與部分情節均為虛構或經改寫，不代表任何真實企業，亦不評斷相關當事人處置之良窳。'
   },
 
