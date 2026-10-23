@@ -274,7 +274,7 @@
           { class: 'narration finale' },
           h('p', { class: 'kicker' }, '閱讀完成'),
           h('h2', null, '案情都掌握了，接下來換你做決定'),
-          h('p', null, '你已經讀完《' + data.meta.title + '》。到討論區完成六個任務：找出徵兆、重建攻擊鏈、配對法條、四大面向討論，最後在 72 小時決策模擬中扮演總經理。'),
+          h('p', null, '你已經讀完《' + data.meta.title + '》。' + App.ui(data, 'readerFinale', '到討論區完成六個任務：找出徵兆、重建攻擊鏈、配對法條、四大面向討論，最後在 72 小時決策模擬中扮演總經理。')),
           h(
             'div',
             { class: 'btn-row' },

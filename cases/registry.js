@@ -10,6 +10,15 @@ window.CASE_REGISTRY = [
     minutes: 90
   },
   {
+    id: 'S115001',
+    status: 'ready',
+    category: '威脅情資',
+    title: '總經理先看到新聞：PHP2Shell 情資應變的 48 小時',
+    origin: 'PHP2Shell 重大漏洞外洩與緊急修補，日本首相示警（2026 年 10 月公開報導）',
+    tags: ['威脅情資', '漏洞管理', 'PHP2Shell', '資產盤點', '委外管理'],
+    minutes: 90
+  },
+  {
     id: 'S111002',
     status: 'planned',
     category: '資訊保護',
