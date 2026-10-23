@@ -55,6 +55,8 @@ SPOKEN = [
     (r'\bCIA\b', 'C I A'),
     (r'\bMFA\b', 'M F A'),
     (r'\bSaaS\b', '沙斯'),
+    (r'\bIP\b', 'I P'),
+    (r'backup-sync', 'backup sync'),
 ]
 DIGITS = '零一二三四五六七八九'
 
