@@ -15,7 +15,7 @@
 
 ## 每個個案的四種模式
 
-- **動畫閱讀**：場景＋案情旁白＋角色對話，逐步讀完個案（`#S111001-read`）
+- **動畫閱讀**：場景＋案情旁白＋角色對話，逐步讀完個案（`#S111001-read`）。Allan 與阿拉蕾的台詞有語音，可用「語音開／關」切換，自動播放會等語音唸完再前進
 - **討論互動**：六個任務（`#S111001-discuss`）
   1. 徵兆偵探：判斷 12 筆系統紀錄是否為攻擊徵兆
   2. 攻擊鏈拼圖：依序排出 7 個攻擊階段，對照 MITRE ATT&CK 與防線
@@ -54,6 +54,7 @@ assets/img/allan/       Allan 顧問表情與姿勢
 assets/img/arale/       阿拉蕾表情與姿勢
 assets/src/             角色設定原圖
 tools/make_sprites.py   由設定原圖切出角色貼圖
+tools/build_voice.py    產生角色台詞語音 → cases/<案號>/voice/
 cases/registry.js       個案清單
 cases/S111001/case.js   個案內容（本文、對話、附件、題目、答案、遊戲、教學手冊）
 cases/S111005/case.js   營業秘密與內部威脅個案
@@ -76,6 +77,18 @@ cases/S115001/case.js   PHP2Shell 情資應變個案
    - 附件類型另有 `chat`（通訊軟體對話）；`notice` 可用 `label` 改標題列文字，`org` 可用 `link` 改兩個單位之間的關係說明
    - `profile`（單一公司概況）、`flow`（資料與設備流向）、`cctv`（監視器畫面示意）、`clauses`（契約條文摘錄，可標示有利／弱點條文），範例見 `cases/S111005/case.js`
 4. 案號格式為 `S` 加 6 位數字（路由只接受這個格式）。
+
+## 角色語音
+
+沿用 ISO 27001 系列課程的聲音（edge-tts）：Allan 為 `zh-TW-YunJheNeural`（語速 +6%），阿拉蕾為 `zh-TW-HsiaoYuNeural`（語速 +12%、音調 +28Hz）。新增或修改台詞後執行：
+
+```bash
+pip install edge-tts
+python3 tools/build_voice.py            # 所有已完成的個案
+python3 tools/build_voice.py S115001    # 只做指定個案
+```
+
+只有改過的台詞會重新合成，不再使用的音檔會自動刪除。英文縮寫的唸法（例如 WAF 唸成 W A F）在 `build_voice.py` 的 `SPOKEN` 調整。沒有產生語音的個案，閱讀時不會出現語音按鈕。
 
 ## 更新角色圖
 

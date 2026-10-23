@@ -145,6 +145,23 @@
     }
     return loading[id];
   };
+  /* 角色語音清單（cases/<id>/voice/voice.js，由 tools/build_voice.py 產生）；沒有時回傳空清單 */
+  window.CASE_VOICE = window.CASE_VOICE || {};
+  const voiceLoading = {};
+  App.loadVoice = function (id) {
+    if (window.CASE_VOICE[id]) return Promise.resolve(window.CASE_VOICE[id]);
+    if (!voiceLoading[id]) {
+      voiceLoading[id] = new Promise((resolve) => {
+        const s = document.createElement('script');
+        s.src = 'cases/' + id + '/voice/voice.js';
+        s.onload = () => resolve(window.CASE_VOICE[id] || {});
+        s.onerror = () => resolve({});
+        document.head.appendChild(s);
+      });
+    }
+    return voiceLoading[id];
+  };
+
   App.registryEntry = function (id) {
     return (window.CASE_REGISTRY || []).find((c) => c.id === id);
   };
