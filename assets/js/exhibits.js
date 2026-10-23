@@ -204,7 +204,7 @@
     },
 
     table(ex) {
-      return h(
+      const table = h(
         'div',
         { class: 'scroll-x' },
         h(
@@ -214,6 +214,7 @@
           h('tbody', null, ex.rows.map((r) => h('tr', null, r.map((c) => h('td', null, c)))))
         )
       );
+      return ex.note ? h('div', null, table, h('p', { class: 'ex-note' }, ex.note)) : table;
     },
 
     /* 單一公司概況：名稱、標籤、重點與數據 */

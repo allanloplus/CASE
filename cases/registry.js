@@ -29,17 +29,21 @@ window.CASE_REGISTRY = [
   },
   {
     id: 'S111003',
-    status: 'planned',
+    status: 'ready',
     category: '資訊保護',
+    title: '沒收回的那把鑰匙：曜川傳媒的跨年直播危機',
     origin: '離職員工偷刪前東家資料，該當何罪？',
-    tags: ['離職管理', '帳號註銷', '妨害電腦使用']
+    tags: ['離職管理', '帳號註銷', '妨害電腦使用', '雲端金鑰', '共用帳號'],
+    minutes: 90
   },
   {
     id: 'S111004',
-    status: 'planned',
+    status: 'ready',
     category: '資訊保護',
+    title: '畫面不能重拍：曦光傳媒的片庫歸零事件',
     origin: '委外要當心！電視台新聞片庫慘遭協力廠商刪除',
-    tags: ['委外管理', '備份', 'RPO']
+    tags: ['委外管理', '備份與復原', 'RPO／RTO', '變更管理', '資產分級'],
+    minutes: 90
   },
   {
     id: 'S111005',
