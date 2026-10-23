@@ -34,10 +34,12 @@ window.CASE_REGISTRY = [
   },
   {
     id: 'S111004',
-    status: 'planned',
+    status: 'ready',
     category: '資訊保護',
+    title: '畫面不能重拍：曦光傳媒的片庫歸零事件',
     origin: '委外要當心！電視台新聞片庫慘遭協力廠商刪除',
-    tags: ['委外管理', '備份', 'RPO']
+    tags: ['委外管理', '備份與復原', 'RPO／RTO', '變更管理', '資產分級'],
+    minutes: 90
   },
   {
     id: 'S111005',
