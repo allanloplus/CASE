@@ -216,6 +216,75 @@
       );
     },
 
+    /* 單一公司概況：名稱、標籤、重點與數據 */
+    profile(ex) {
+      return h(
+        'div',
+        { class: 'ex-profile' },
+        h('div', { class: 'org-co' }, ex.badge ? h('span', { class: 'pill pill-navy' }, ex.badge) : null, h('strong', null, ex.name), ex.detail ? h('span', { class: 'muted' }, ex.detail) : null),
+        ex.chips ? h('ul', { class: 'chips' }, ex.chips.map((c) => h('li', null, c))) : null,
+        h('dl', { class: 'kv' }, ex.stats.map(([k, v]) => [h('dt', null, k), h('dd', null, v)])),
+        ex.note ? h('p', { class: 'ex-note' }, ex.note) : null
+      );
+    },
+
+    /* 流向示意：每一列是一條路徑，kind 決定色彩（src 來源、hit 異常、out 外送管道、bad 管控之外、ctrl 控制措施）；plain 的列不畫箭頭 */
+    flow(ex) {
+      return h(
+        'div',
+        { class: 'ex-flow' },
+        ex.lanes.map((lane) =>
+          h(
+            'div',
+            { class: 'flow-lane' },
+            h('p', { class: 'flow-title' }, lane.title),
+            h('ol', { class: 'flow-steps' + (lane.plain ? ' plain' : '') }, lane.steps.map((st) => h('li', { class: 'flow-step k-' + (st.kind || 'src') }, h('strong', null, st.t), st.s ? h('span', null, st.s) : null)))
+          )
+        ),
+        ex.legend ? h('ul', { class: 'flow-legend' }, ex.legend.map(([kind, label]) => h('li', { class: 'k-' + kind }, label))) : null,
+        ex.note ? h('p', { class: 'ex-note' }, ex.note) : null
+      );
+    },
+
+    /* 監視器畫面示意 */
+    cctv(ex) {
+      const svg =
+        `<svg viewBox="0 0 320 150" aria-hidden="true">` +
+        `<path d="M0 132 H320" class="cctv-floor"/>` +
+        `<rect x="216" y="20" width="70" height="112" class="cctv-door"/>` +
+        `<circle cx="96" cy="44" r="11" class="cctv-fig"/>` +
+        `<path d="M86 58 h20 l8 40 h-8 l-4 34 h-7 l-2 -30 l-2 30 h-7 l-2 -34 h-6 z" class="cctv-fig"/>` +
+        `<path d="M110 74 L132 86" class="cctv-arm"/>` +
+        `<rect x="132" y="80" width="74" height="30" class="cctv-cart"/>` +
+        `<rect x="138" y="62" width="62" height="18" class="cctv-box"/>` +
+        `<rect x="150" y="50" width="20" height="12" class="cctv-box"/>` +
+        `<rect x="172" y="50" width="20" height="12" class="cctv-box"/>` +
+        `<circle cx="144" cy="118" r="7" class="cctv-wheel"/><circle cx="194" cy="118" r="7" class="cctv-wheel"/>` +
+        `<rect x="76" y="26" width="46" height="110" class="cctv-tag"/>` +
+        `<rect x="132" y="44" width="76" height="70" class="cctv-tag"/>` +
+        `</svg>`;
+      return h(
+        'div',
+        { class: 'ex-cctv', role: 'img', 'aria-label': ex.alt || '監視器畫面示意' },
+        h('div', { class: 'cctv-top mono' }, h('span', { class: 'cctv-rec' }, 'REC'), h('span', null, ex.cam)),
+        h('div', { class: 'cctv-view', html: svg }),
+        h('div', { class: 'cctv-bottom mono' }, h('span', null, ex.time)),
+        h('ul', { class: 'cctv-notes' }, ex.notes.map((n) => h('li', null, n))),
+        h('p', { class: 'ransom-tag' }, '教學示意畫面')
+      );
+    },
+
+    /* 契約或規章條文摘錄 */
+    clauses(ex) {
+      return h(
+        'div',
+        { class: 'ex-clauses' },
+        h('div', { class: 'notice-head' }, h('span', null, ex.doc), ex.signed ? h('span', { class: 'mono' }, ex.signed) : null),
+        h('ol', { class: 'clause-list' }, ex.items.map(([k, v, flag]) => h('li', { class: flag ? 'flag-' + flag : null }, h('strong', null, k), h('p', { html: fmt(v) })))),
+        ex.note ? h('p', { class: 'ex-note' }, ex.note) : null
+      );
+    },
+
     timeline(ex) {
       return h(
         'ol',
